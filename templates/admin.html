@@ -1,0 +1,2453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeaveHub - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <style>
+        :root {
+            --primary-blue: #0088cc;
+            --primary-dark: #006ba3;
+            --light-bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #e0e6ed;
+            --success-green: #27ae60;
+            --warning-yellow: #f39c12;
+            --danger-red: #e74c3c;
+            --info-blue: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-primary);
+        }
+
+        .main-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 220px;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-brand i {
+            font-size: 28px;
+            margin-right: 10px;
+        }
+
+        .sidebar-brand h3 {
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .sidebar-brand-small {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding-left: 20px;
+        }
+
+        .sidebar-menu i {
+            margin-right: 12px;
+            width: 20px;
+        }
+
+        /* Submenu Styles */
+        .sidebar-menu .menu-item-with-submenu {
+            position: relative;
+        }
+
+        .sidebar-menu .menu-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .sidebar-menu .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding-left: 20px;
+        }
+
+        .sidebar-menu .menu-toggle .toggle-icon {
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+
+        .sidebar-menu .menu-item-with-submenu.open .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .sidebar-menu .submenu {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .sidebar-menu .menu-item-with-submenu.open .submenu {
+            max-height: 200px;
+        }
+
+        .sidebar-menu .submenu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu .submenu a {
+            padding: 10px 15px 10px 47px;
+            font-size: 13px;
+        }
+
+        .sidebar-menu .submenu a:hover,
+        .sidebar-menu .submenu a.active {
+            padding-left: 52px;
+        }
+
+
+        .sidebar-user {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-user-avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-user-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .sidebar-user-role {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .sidebar-logout-btn {
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-logout-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .sidebar-logout-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            overflow-y: auto;
+            padding: 0 8px 8px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .welcome-section h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .welcome-section p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .btn-request-leave {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-request-leave:hover {
+            background: var(--primary-dark);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 136, 204, 0.3);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .stat-description.green {
+            color: var(--success-green);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-left: 15px;
+        }
+
+        .stat-card:nth-child(1) .stat-icon {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+
+        .stat-card:nth-child(2) .stat-icon {
+            background: rgba(155, 89, 182, 0.1);
+            color: #9b59b6;
+        }
+
+        .stat-card:nth-child(3) .stat-icon {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+        }
+
+        .stat-card:nth-child(4) .stat-icon {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+        }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Section Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .section-header p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .section-body {
+            padding: 25px;
+        }
+
+        /* Admin Form Specifics: improved two-column layout */
+        .form-columns {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 22px;
+            align-items: start;
+            max-width: 980px;
+            margin: 0 auto;
+        }
+
+        /* Backwards-compatibility: many templates still use .form-grid-container */
+        .form-grid-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 22px;
+            align-items: start;
+            max-width: 980px;
+            margin: 0 auto;
+        }
+
+        .form-column {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 14px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .modern-input,
+        .modern-select {
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+        .modern-submit-btn {
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+
+        .column-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Make the form single-column on small screens */
+        @media (max-width: 992px) {
+            .form-columns {
+                grid-template-columns: 1fr;
+                max-width: 100%;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2 i {
+            color: var(--primary-blue);
+        }
+
+        /* Flash Messages */
+        .flash-message {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+            animation: slideIn 0.3s ease;
+        }
+
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #27ae60;
+        }
+
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #e74c3c;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 10px;
+            }
+
+            .sidebar-brand {
+                display: none;
+            }
+
+            .sidebar-user {
+                display: none;
+            }
+
+            .sidebar-menu a {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 12px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-section h1 {
+                font-size: 24px;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-brand">
+                <img src="{{ url_for('static', filename='images/securiport_logo.svg') }}" alt="SECURIPORT Logo"
+                    style="height:40px;width:40px;border-radius:50%;margin-right:10px;object-fit:cover;" />
+                <div>
+                    <h3>SECURIPORT</h3>
+                    <div class="sidebar-brand-small">LeaveHub</div>
+                </div>
+            </div>
+
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{{ url_for('admin') }}" class="active">
+                        <i class="fas fa-tasks"></i>
+                        <span>Admin Panel</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('dashboard') }}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item-with-submenu">
+                    <button class="menu-toggle" onclick="toggleSubmenu(this)">
+                        <span>
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Request</span>
+                        </span>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </button>
+                    <ul class="submenu">
+                        <li>
+                            <a href="{{ url_for('apply_leave') }}">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Leave Request</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar">{{ current_user.name[0] }}</div>
+                <div class="sidebar-user-name">{{ current_user.name }}</div>
+                <div class="sidebar-user-role">Administrator</div>
+                <a href="{{ url_for('logout') }}" class="sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="flash-message {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">{{
+                message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="welcome-section">
+                    <h1>Admin Panel</h1>
+                    <p>Manage users, leave requests, and system settings</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('logout') }}" class="btn btn-logout"
+                        style="display:inline-flex; align-items:center; gap:8px;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-value">{{ users|length }}</div>
+                        <div class="stat-description">Active in system</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Active Users</div>
+                        <div class="stat-value">{{ users|selectattr('is_active', 'equalto', true)|list|length }}</div>
+                        <div class="stat-description">Currently active</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">HR Staff</div>
+                        <div class="stat-value">{{ users|selectattr('is_hr', 'equalto', true)|list|length }}</div>
+                        <div class="stat-description">HR personnel</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Total Employees</div>
+                        <div class="stat-value">{{ admin_total_employees if admin_total_employees is not none else
+                            users|length
+                            }}</div>
+                        <div class="stat-description">Active employees</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">System Leave Balance</div>
+                        <div class="stat-value">{{ admin_total_leave_balance if admin_total_leave_balance is not none
+                            else '-'
+                            }}</div>
+                        <div class="stat-description">Total days remaining (30 per employee)</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Used This Year</div>
+                        <div class="stat-value">{{ admin_used_leaves_this_year if admin_used_leaves_this_year is not
+                            none else
+                            '-' }}</div>
+                        <div class="stat-description">Approved days used this year</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Leave Requests</div>
+                        <div class="stat-value">{{ total_leaves }}</div>
+                        <div class="stat-description green">{{ approved_leaves }} approved</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Leave Status Distribution</h3>
+                    </div>
+                    <div style="height: 250px; position: relative;">
+                        <canvas id="leaveStatusChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Leaves by Type</h3>
+                    </div>
+                    <div style="height: 250px; position: relative;">
+                        <canvas id="leaveTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Add New User Card -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-user-plus"></i> Add New User</h3>
+                        <p>Create a new user account</p>
+                    </div>
+                    <div class="section-body">
+                        <form method="POST" action="{{ url_for('register') }}" class="modern-form"
+                            onsubmit="return validateForm(event);">
+                            <div class="form-grid-container">
+                                <div class="form-section">
+                                    <h3 class="section-title">Account Information</h3>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="first_name">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                            First Name
+                                        </label>
+                                        <input type="text" id="first_name" name="first_name"
+                                            class="form-control modern-input" required minlength="2" maxlength="50"
+                                            pattern="[A-Za-z\s'-]+"
+                                            title="First name can contain letters, spaces, apostrophes, and hyphens">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="last_name">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                            Last Name
+                                        </label>
+                                        <input type="text" id="last_name" name="last_name"
+                                            class="form-control modern-input" required minlength="2" maxlength="50"
+                                            pattern="[A-Za-z\s'-]+"
+                                            title="Last name can contain letters, spaces, apostrophes, and hyphens">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="username">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                            Username
+                                        </label>
+                                        <input type="text" id="username" name="username"
+                                            class="form-control modern-input" required minlength="3" maxlength="50"
+                                            pattern="[a-zA-Z0-9_]+"
+                                            title="Username can only contain letters, numbers, and underscores">
+                                        <span class="form-hint">3-50 characters, letters, numbers and underscores
+                                            only</span>
+                                        <div id="username-availability" class="availability-msg" aria-live="polite">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="employee_id">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                <path d="M8 7h8M8 11h8M8 15h5"></path>
+                                            </svg>
+                                            Employee ID
+                                        </label>
+                                        <input type="text" id="employee_id" name="employee_id"
+                                            class="form-control modern-input" required maxlength="20"
+                                            pattern="[A-Za-z0-9_-]+"
+                                            title="Employee ID can contain letters, numbers, hyphens and underscores">
+                                        <span class="form-hint">Unique employee identifier (e.g., E001)</span>
+                                        <div id="employee-id-availability" class="availability-msg" aria-live="polite">
+                                        </div>
+                                    </div>
+                                    <!-- Email field removed in revert -->
+                                </div>
+
+                                <div class="form-section">
+                                    <h3 class="section-title">Security</h3>
+                                    <div class="form-group">
+                                        <label class="form-label" for="password">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                            </svg>
+                                            Password
+                                        </label>
+                                        <div class="password-input-container modern-input-group">
+                                            <input type="password" id="password" name="password"
+                                                class="form-control modern-input" required minlength="8"
+                                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                                                title="Password must contain at least 8 characters, including uppercase, lowercase, number and special character">
+                                            <button type="button" class="toggle-password modern-button"
+                                                onclick="togglePasswordVisibility('password')">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <span class="form-hint">Minimum 8 characters with uppercase, lowercase, number
+                                            and
+                                            special character</span>
+                                        <div id="password-strength" class="password-strength modern-strength-indicator">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="confirm_password">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                            </svg>
+                                            Confirm Password
+                                        </label>
+                                        <div class="password-input-container modern-input-group">
+                                            <input type="password" id="confirm_password" name="confirm_password"
+                                                class="form-control modern-input" required>
+                                            <button type="button" class="toggle-password modern-button"
+                                                onclick="togglePasswordVisibility('confirm_password')">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <span class="password-match-message" id="password-match-message"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-section">
+                                    <h3 class="section-title">Role & Department</h3>
+                                    <div class="form-group">
+                                        <label class="form-label" for="role">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="9" cy="7" r="4"></circle>
+                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                            </svg>
+                                            User Role
+                                        </label>
+                                        <select id="role" name="is_hr" class="form-control modern-select" required>
+                                            <option value="">Select Role</option>
+                                            <option value="0">Employee</option>
+                                            <option value="1">HR Staff</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="department">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                            </svg>
+                                            Department
+                                        </label>
+                                        <select id="department" name="department" class="form-control modern-select"
+                                            required>
+                                            <option value="Select Department">Select Department</option>
+                                            <option value="IT Department">IT Department</option>
+                                            <option value="Finance Department">Finance Department</option>
+                                            <option value="General Manager">General Manager</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="job_title">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M6 9h12M6 9a6 6 0 0 0 6 6 6 6 0 0 0 6-6"></path>
+                                            </svg>
+                                            Employee Job Title
+                                        </label>
+                                        <input type="text" id="job_title" name="job_title"
+                                            class="form-control modern-input"
+                                            placeholder="e.g., Manager, Developer, Analyst">
+                                        <span class="form-hint">Optional — job title or designation for the
+                                            employee</span>
+                                    </div>
+
+                                    <div class="form-group modern-checkbox-group">
+                                        <label class="form-label modern-checkbox-label">
+                                            <input type="checkbox" name="is_active" class="modern-checkbox" checked>
+                                            <span class="checkbox-text">Active Account</span>
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" id="add-user-submit"
+                                        class="btn btn-primary modern-submit-btn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z">
+                                            </path>
+                                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                            <polyline points="7 3 7 8 15 8"></polyline>
+                                        </svg>
+                                        Add User
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <script>
+                    function validateForm(event) {
+                        const password = document.getElementById('password');
+                        const confirmPassword = document.getElementById('confirm_password');
+                        const passwordMatchMessage = document.getElementById('password-match-message');
+
+                        if (password.value !== confirmPassword.value) {
+                            passwordMatchMessage.textContent = 'Passwords do not match';
+                            passwordMatchMessage.style.color = '#dc3545';
+                            event.preventDefault();
+                            return false;
+                        }
+                        return true;
+                    }
+
+                    function togglePasswordVisibility(inputId) {
+                        const input = document.getElementById(inputId);
+                        input.type = input.type === 'password' ? 'text' : 'password';
+                    }
+
+                    document.getElementById('password').addEventListener('input', function () {
+                        const password = this.value;
+                        const strengthDiv = document.getElementById('password-strength');
+                        const strength = calculatePasswordStrength(password);
+
+                        strengthDiv.className = 'password-strength';
+                        strengthDiv.classList.add(`strength-${strength}`);
+                        strengthDiv.textContent = `Password Strength: ${strength.charAt(0).toUpperCase() + strength.slice(1)}`;
+                    });
+
+                    function calculatePasswordStrength(password) {
+                        let strength = 0;
+                        if (password.length >= 8) strength++;
+                        if (password.match(/[a-z]+/)) strength++;
+                        if (password.match(/[A-Z]+/)) strength++;
+                        if (password.match(/[0-9]+/)) strength++;
+                        if (password.match(/[@$!%*?&]+/)) strength++;
+
+                        if (strength < 2) return 'weak';
+                        if (strength < 4) return 'medium';
+                        return 'strong';
+                    }
+
+                    document.getElementById('confirm_password').addEventListener('input', function () {
+                        const password = document.getElementById('password').value;
+                        const confirmPassword = this.value;
+                        const message = document.getElementById('password-match-message');
+
+                        if (confirmPassword === '') {
+                            message.textContent = '';
+                        } else if (password === confirmPassword) {
+                            message.textContent = 'Passwords match';
+                            message.style.color = '#28a745';
+                        } else {
+                            message.textContent = 'Passwords do not match';
+                            message.style.color = '#dc3545';
+                        }
+                    });
+                </script>
+            </div>
+
+            <script>
+                // Debounced AJAX checks for username and employee ID availability (admin-only endpoints)
+                (function () {
+                    const usernameInput = document.getElementById('username');
+                    const empInput = document.getElementById('employee_id');
+                    const usernameMsg = document.getElementById('username-availability');
+                    const empMsg = document.getElementById('employee-id-availability');
+                    const submitBtn = document.getElementById('add-user-submit');
+
+                    if (!usernameInput || !empInput || !submitBtn) return;
+
+                    let usernameAvailable = true;
+                    let empAvailable = true;
+
+                    function debounce(fn, delay) {
+                        let timer = null;
+                        return function (...args) {
+                            clearTimeout(timer);
+                            timer = setTimeout(() => fn.apply(this, args), delay);
+                        };
+                    }
+
+                    async function checkUsername() {
+                        const v = usernameInput.value.trim();
+                        if (!v) {
+                            usernameMsg.textContent = '';
+                            usernameAvailable = false;
+                            updateSubmit();
+                            return;
+                        }
+                        try {
+                            const res = await fetch(`/admin/check-username?username=${encodeURIComponent(v)}`);
+                            const data = await res.json();
+                            if (data.available) {
+                                usernameMsg.textContent = 'Username is available';
+                                usernameMsg.style.color = '#16a34a';
+                                usernameAvailable = true;
+                            } else {
+                                usernameMsg.textContent = 'Username is already taken';
+                                usernameMsg.style.color = '#dc2626';
+                                usernameAvailable = false;
+                            }
+                        } catch (err) {
+                            usernameMsg.textContent = 'Unable to check username';
+                            usernameMsg.style.color = '#f59e0b';
+                            usernameAvailable = false;
+                        }
+                        updateSubmit();
+                    }
+
+                    async function checkEmployeeId() {
+                        const v = empInput.value.trim();
+                        if (!v) {
+                            empMsg.textContent = '';
+                            empAvailable = false;
+                            updateSubmit();
+                            return;
+                        }
+                        try {
+                            const res = await fetch(`/admin/check-employee-id?employee_id=${encodeURIComponent(v)}`);
+                            const data = await res.json();
+                            if (data.available) {
+                                empMsg.textContent = 'Employee ID is available';
+                                empMsg.style.color = '#16a34a';
+                                empAvailable = true;
+                            } else {
+                                empMsg.textContent = 'Employee ID already exists';
+                                empMsg.style.color = '#dc2626';
+                                empAvailable = false;
+                            }
+                        } catch (err) {
+                            empMsg.textContent = 'Unable to check employee ID';
+                            empMsg.style.color = '#f59e0b';
+                            empAvailable = false;
+                        }
+                        updateSubmit();
+                    }
+
+                    function updateSubmit() {
+                        // Only enable when both checks are true
+                        const ok = usernameAvailable && empAvailable;
+                        submitBtn.disabled = !ok;
+                        submitBtn.style.opacity = ok ? '1' : '0.6';
+                    }
+
+                    const debouncedCheckUsername = debounce(checkUsername, 450);
+                    const debouncedCheckEmployeeId = debounce(checkEmployeeId, 450);
+
+                    usernameInput.addEventListener('input', debouncedCheckUsername);
+                    empInput.addEventListener('input', debouncedCheckEmployeeId);
+
+                    // Run an initial check if fields already have values
+                    if (usernameInput.value) debouncedCheckUsername();
+                    if (empInput.value) debouncedCheckEmployeeId();
+                })();
+                (function () {
+                    var btn = document.getElementById('mobileSidebarToggle');
+                    if (!btn) return;
+                    var sidebar = document.querySelector('.sidebar');
+                    btn.addEventListener('click', function () {
+                        if (sidebar) sidebar.classList.toggle('sidebar-hidden');
+                    });
+                })();
+            </script>
+
+
+            <!-- User Management Card -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h3><i class="fas fa-users"></i> User Management</h3>
+                    <p>Manage all users in the system</p>
+                </div>
+
+                <div class="section-body">
+                    <div class="table-responsive" style="padding:0 8px;">
+                        <table class="user-table" style="width:100%; border-collapse:separate; border-spacing:0;">
+                            <thead>
+                                <tr style="background:#f5f7fa;">
+                                    <th class="col-group-identity" style="text-align:left; padding:12px 10px;">Identity
+                                    </th>
+                                    <th class="col-group-role" style="text-align:center; padding:12px 10px;">Role</th>
+                                    <th class="col-group-taken" style="text-align:center; padding:12px 10px;">Days Taken
+                                    </th>
+                                    <th class="col-group-left" style="text-align:center; padding:12px 10px;">Days Left
+                                    </th>
+                                    <th class="col-group-status" style="text-align:center; padding:12px 10px;">Status
+                                    </th>
+                                    <th class="col-group-actions" style="text-align:center; padding:12px 10px;">Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr class="user-row" style="border-bottom:1px solid #e0e6ed;">
+                                    <td class="col-group-identity" style="padding:10px; vertical-align:middle;">
+                                        <div class="user-identity" style="display:flex; align-items:center; gap:12px;">
+                                            <div class="user-avatar"
+                                                style="width:32px; height:32px; background:#e0e6ed; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:16px; color:#374151;">
+                                                {{ user.name[0] }}</div>
+                                            <div class="user-details" style="display:flex; flex-direction:column;">
+                                                <span class="employee-name" style="font-weight:600; color:#2c3e50;">{{
+                                                    user.name
+                                                    }}</span>
+                                                <span class="username" style="font-size:12px; color:#7f8c8d;">{{
+                                                    user.username
+                                                    }}{% if user.department %} · {{ user.department }}{% endif %}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="col-group-role"
+                                        style="text-align:center; vertical-align:middle; padding:10px;">
+                                        <span
+                                            class="badge {% if user.is_hr %}badge-success{% else %}badge-warning{% endif %}"
+                                            style="padding:6px 14px; border-radius:16px; font-size:13px;">{% if
+                                            user.is_hr %}HR
+                                            Staff{% else %}Employee{% endif %}</span>
+                                    </td>
+                                    <td class="col-group-taken"
+                                        style="text-align:center; vertical-align:middle; padding:10px;">
+                                        {% set _stats = (user_stats.get(user.id) if user_stats is defined else None) %}
+                                        {% if _stats %}
+                                        {{ _stats['used'] }}
+                                        {% else %}
+                                        {% set used = 0 %}
+                                        {% for l in leaves %}
+                                        {% if l.user_id == user.id and l.status == 'Approved' and l.start_date.year ==
+                                        current_year %}
+                                        {% set used = used + ((l.end_date - l.start_date).days + 1) %}
+                                        {% endif %}
+                                        {% endfor %}
+                                        {{ used }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="col-group-left"
+                                        style="text-align:center; vertical-align:middle; padding:10px;">
+                                        {% set _stats = (user_stats.get(user.id) if user_stats is defined else None) %}
+                                        {% if _stats %}
+                                        {{ _stats['remaining'] }}
+                                        {% else %}
+                                        {% set used = 0 %}
+                                        {% for l in leaves %}
+                                        {% if l.user_id == user.id and l.status == 'Approved' and l.start_date.year ==
+                                        current_year %}
+                                        {% set used = used + ((l.end_date - l.start_date).days + 1) %}
+                                        {% endif %}
+                                        {% endfor %}
+                                        {% set alloc = (user.annual_leave_allocation if user.annual_leave_allocation is
+                                        not none
+                                        else 30) %}
+                                        {% set remaining = alloc - used %}
+                                        {{ remaining if remaining > 0 else 0 }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="col-group-status"
+                                        style="text-align:center; vertical-align:middle; padding:10px;">
+                                        <span
+                                            class="badge {% if user.is_active %}badge-success{% else %}badge-danger{% endif %}"
+                                            style="padding:6px 14px; border-radius:16px; font-size:13px;">{% if
+                                            user.is_active
+                                            %}Active{% else %}Inactive{% endif %}</span>
+                                    </td>
+                                    <td class="col-group-actions"
+                                        style="text-align:center; vertical-align:middle; padding:10px;">
+                                        <div class="action-buttons"
+                                            style="display:flex; gap:6px; justify-content:center;">
+                                            <form method="POST"
+                                                action="{{ url_for('toggle_user_role', user_id=user.id) }}"
+                                                class="action-form">
+                                                <button type="submit" class="btn btn-sm btn-warning"
+                                                    title="Toggle Role">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke="#fbbf24" width="16" height="16">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                                    </svg>
+                                                    <span>Role</span>
+                                                </button>
+                                            </form>
+                                            <form method="POST"
+                                                action="{{ url_for('toggle_user_status', user_id=user.id) }}"
+                                                class="action-form">
+                                                <button type="submit" class="btn btn-sm btn-primary"
+                                                    title="Toggle Status">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke="#60a5fa" width="16" height="16">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <span>Status</span>
+                                                </button>
+                                            </form>
+                                            <form method="POST"
+                                                action="{{ url_for('reset_password', user_id=user.id) }}"
+                                                class="action-form">
+                                                <button type="submit" class="btn btn-sm btn-info"
+                                                    title="Reset Password">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke="#38bdf8" width="16" height="16">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                                    </svg>
+                                                    <span>Reset</span>
+                                                </button>
+                                            </form>
+                                            <div class="action-form">
+                                                <button type="button" class="btn btn-sm btn-secondary btn-edit"
+                                                    title="Edit User" data-user-id="{{ user.id }}"
+                                                    data-first-name="{{ user.first_name or '' }}"
+                                                    data-last-name="{{ user.last_name or '' }}"
+                                                    data-employee-id="{{ user.employee_id or '' }}"
+                                                    data-department="{{ user.department or '' }}"
+                                                    data-job-title="{{ user.job_title or '' }}"
+                                                    data-is-hr="{{ 1 if user.is_hr else 0 }}"
+                                                    data-is-active="{{ 1 if user.is_active else 0 }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke="#6b7280" width="16" height="16">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M11 5h2m3 0h2m-9 0H7m10 0a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h10z" />
+                                                    </svg>
+                                                    <span>Edit</span>
+                                                </button>
+                                            </div>
+                                            <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}"
+                                                class="action-form"
+                                                onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete User">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke="#ef4444" width="16" height="16">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                    <span>Delete</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Leave Requests Card -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-calendar-check"></i> Leave Requests</h3>
+                        <p>Review and manage leave requests from employees</p>
+                    </div>
+                    <div class="section-body">
+                        <div class="table-container">
+                            <div class="filters-bar">
+                                <div>
+                                    <label class="form-label" for="filterEmployee">Employee</label>
+                                    <input type="text" id="filterEmployee" class="form-control modern-input"
+                                        placeholder="Search employee">
+                                </div>
+                                <div>
+                                    <label class="form-label" for="filterType">Leave Type</label>
+                                    <select id="filterType" class="form-control modern-select">
+                                        <option value="">All Types</option>
+                                        {% for g in leaves|groupby('leave_type') %}
+                                        <option value="{{ g.grouper }}">{{ g.grouper }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label" for="filterStart">Start From</label>
+                                    <input type="date" id="filterStart" class="form-control modern-input">
+                                </div>
+                                <div>
+                                    <label class="form-label" for="filterEnd">End Until</label>
+                                    <input type="date" id="filterEnd" class="form-control modern-input">
+                                </div>
+                                <div>
+                                    <label class="form-label" for="filterReason">Reason</label>
+                                    <input type="text" id="filterReason" class="form-control modern-input"
+                                        placeholder="Search reason">
+                                </div>
+                                <div>
+                                    <label class="form-label" for="filterStatus">Status</label>
+                                    <select id="filterStatus" class="form-control modern-select">
+                                        <option value="">All Statuses</option>
+                                        <option value="Approved">Approved</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Rejected">Rejected</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-secondary" id="filterReset">Reset
+                                        Filters</button>
+                                </div>
+                            </div>
+                            <table class="leave-table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Leave Type</th>
+                                        <th>Date Range</th>
+                                        <th>Documents</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if leaves %}
+                                    {% for leave in leaves %}
+                                    <tr class="leave-row" data-employee="{{ leave.employee_name|lower }}"
+                                        data-type="{{ leave.leave_type|lower }}"
+                                        data-start="{{ leave.start_date.strftime('%Y-%m-%d') }}"
+                                        data-end="{{ leave.end_date.strftime('%Y-%m-%d') }}"
+                                        data-status="{{ leave.status|lower }}" data-reason="{{ leave.reason|lower }}">
+                                        <td class="user-identity">
+                                            <div class="user-avatar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                            </div>
+                                            <div class="user-details">
+                                                <span class="username">{{ leave.employee_name }}</span>
+                                                <span class="department">ID: {{ leave.employee_id }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ leave.leave_type }}</td>
+                                        <td class="date-column">
+                                            {{ leave.start_date.strftime('%Y-%m-%d') }} <br>
+                                            <small>to {{ leave.end_date.strftime('%Y-%m-%d') }}</small>
+                                        </td>
+                                        <td>
+                                            {% if leave.documents %}
+                                            <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                                                {% for doc in leave.documents %}
+                                                <a href="{{ url_for('static', filename='uploads/' + doc.filename) }}"
+                                                    target="_blank" title="{{ doc.filename }}"
+                                                    style="color:var(--primary-blue);">
+                                                    <i class="fas fa-file-alt"></i>
+                                                </a>
+                                                {% endfor %}
+                                            </div>
+                                            {% else %}
+                                            <span style="color:var(--text-secondary); font-size:12px;">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="reason-column">{{ leave.reason[:50] }}{% if leave.reason|length > 50
+                                            %}...{%
+                                            endif %}</td>
+                                        <td>
+                                            <span
+                                                class="badge {% if leave.status == 'Approved' %}badge-success{% elif leave.status == 'Rejected' %}badge-danger{% else %}badge-warning{% endif %}">
+                                                {{ leave.status }}
+                                            </span>
+                                        </td>
+                                        <td class="actions">
+                                            {% if leave.status == 'Pending' %}
+                                            <form method="POST"
+                                                action="{{ url_for('approve_leave', leave_id=leave.id) }}"
+                                                class="action-form" style="display: inline;">
+                                                <button type="submit" class="btn btn-sm btn-success"
+                                                    title="Approve Leave">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke="#10b981" width="16" height="16">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    <span>Approve</span>
+                                                </button>
+                                            </form>
+                                            <div class="action-form" style="display: inline;">
+                                                <button type="button" class="btn btn-sm btn-danger btn-reject"
+                                                    data-leave-id="{{ leave.id }}" title="Reject Leave">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke="#ef4444" width="16" height="16">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                    <span>Reject</span>
+                                                </button>
+                                            </div>
+                                            {% else %}
+                                            <span class="text-muted">No actions available</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 2rem; color: #6c757d;">
+                                            No leave requests found
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                            <script>
+                                (function () {
+                                    const fEmployee = document.getElementById('filterEmployee');
+                                    const fType = document.getElementById('filterType');
+                                    const fStart = document.getElementById('filterStart');
+                                    const fEnd = document.getElementById('filterEnd');
+                                    const fReason = document.getElementById('filterReason');
+                                    const fStatus = document.getElementById('filterStatus');
+                                    const btnReset = document.getElementById('filterReset');
+                                    const rows = Array.from(document.querySelectorAll('.leave-row'));
+
+                                    function applyFilters() {
+                                        const emp = (fEmployee.value || '').toLowerCase();
+                                        const type = (fType.value || '').toLowerCase();
+                                        const status = (fStatus.value || '').toLowerCase();
+                                        const reason = (fReason.value || '').toLowerCase();
+                                        const startVal = fStart.value ? new Date(fStart.value) : null;
+                                        const endVal = fEnd.value ? new Date(fEnd.value) : null;
+                                        rows.forEach(row => {
+                                            const rEmp = row.getAttribute('data-employee') || '';
+                                            const rType = row.getAttribute('data-type') || '';
+                                            const rStatus = row.getAttribute('data-status') || '';
+                                            const rReason = row.getAttribute('data-reason') || '';
+                                            const rStart = new Date(row.getAttribute('data-start'));
+                                            const rEnd = new Date(row.getAttribute('data-end'));
+                                            let show = true;
+                                            if (emp && !rEmp.includes(emp)) show = false;
+                                            if (type && rType !== type) show = false;
+                                            if (status && rStatus !== status) show = false;
+                                            if (reason && !rReason.includes(reason)) show = false;
+                                            if (startVal && rEnd < startVal) show = false;
+                                            if (endVal && rStart > endVal) show = false;
+                                            row.style.display = show ? '' : 'none';
+                                        });
+                                    }
+                                    function attach(el, evt) { el.addEventListener(evt, applyFilters); }
+                                    attach(fEmployee, 'input');
+                                    attach(fType, 'change');
+                                    attach(fStart, 'change');
+                                    attach(fEnd, 'change');
+                                    attach(fReason, 'input');
+                                    attach(fStatus, 'change');
+                                    btnReset.addEventListener('click', function () {
+                                        fEmployee.value = '';
+                                        fType.value = '';
+                                        fStart.value = '';
+                                        fEnd.value = '';
+                                        fReason.value = '';
+                                        fStatus.value = '';
+                                        applyFilters();
+                                    });
+                                    applyFilters();
+                                })();
+                            </script>
+                        </div>
+                    </div>
+                </div>
+</body>
+
+</html>
+
+<style>
+    .dashboard-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .metric-card {
+        background: var(--surface);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+    }
+
+    .metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary);
+    }
+
+    .metric-icon {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        padding: 1rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .metric-icon svg {
+        width: 1.5rem;
+        height: 1.5rem;
+        stroke: white;
+    }
+
+    .metric-content h3 {
+        font-size: 0.875rem;
+        color: var(--text-light);
+        margin-bottom: 0.25rem;
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text);
+        margin: 0;
+    }
+
+    .modern-form {
+        padding: 1rem 1rem 1rem 1rem;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease;
+    }
+
+    .modern-form:hover {
+        transform: translateY(-2px);
+    }
+
+    .form-grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+        margin-top: 0.75rem;
+    }
+
+    .form-section {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .form-section:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: #495057;
+        font-weight: 500;
+    }
+
+    .form-label svg {
+        color: #6c757d;
+    }
+
+    .form-control,
+    .modern-input,
+    .modern-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .modern-input:focus,
+    .modern-select:focus {
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        outline: none;
+    }
+
+    .modern-input-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .modern-button {
+        position: absolute;
+        right: 1rem;
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .modern-strength-indicator {
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+    }
+
+    .modern-checkbox-group {
+        display: flex;
+        align-items: center;
+        margin: 1rem 0;
+    }
+
+    .modern-checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+
+    .modern-checkbox {
+        width: 1.2rem;
+        height: 1.2rem;
+        border-radius: 4px;
+        border: 2px solid #6c757d;
+        transition: all 0.2s;
+    }
+
+    .btn,
+    .modern-submit-btn {
+        width: 100%;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .modern-submit-btn:hover {
+        background: #357abd;
+        transform: translateY(-1px);
+    }
+
+    .leave-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 1rem 0;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .leave-table th,
+    .leave-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .leave-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .leave-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .leave-table td:first-child {
+        font-weight: 500;
+    }
+
+    .leave-table .date-column {
+        white-space: nowrap;
+        color: #666;
+    }
+
+    .leave-table .reason-column {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .leave-table .actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .leave-table .btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: all 0.2s;
+    }
+
+    .leave-table .btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .leave-table .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .user-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 1.5rem;
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .user-table th,
+    .user-table td {
+        padding: 1.25rem;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+        transition: background-color 0.2s ease;
+    }
+
+    .user-table th {
+        background: #f8fafc;
+        font-weight: 600;
+        color: #1a202c;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        letter-spacing: 0.05em;
+    }
+
+    .user-table tr:hover td {
+        background-color: #f8fafc;
+    }
+
+    .user-table th {
+        padding: 1.25rem;
+        text-align: left;
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .user-table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+    .user-identity {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: #f0f2f5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-avatar svg {
+        width: 24px;
+        height: 24px;
+        color: #6c757d;
+    }
+
+    .user-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .username {
+        font-weight: 500;
+        color: #212529;
+    }
+
+    .department {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    .role-status-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-start;
+    }
+
+    .action-buttons .btn {
+        padding: 0.5rem;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .action-buttons .btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .action-buttons .btn span {
+        display: none;
+    }
+
+    .action-buttons .btn:hover span {
+        display: inline;
+        margin-left: 0.3rem;
+    }
+
+    /* Leave Table Styles */
+    .leave-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    .leave-table th {
+        background: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 2px solid #dee2e6;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .leave-table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .leave-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    .leave-table .date-column {
+        font-size: 0.875rem;
+    }
+
+    .leave-table .reason-column {
+        font-size: 0.875rem;
+        max-width: 200px;
+    }
+
+    .leave-table .actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .leave-table .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.875rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        color: white;
+    }
+
+    .btn-success {
+        background: #10b981;
+    }
+
+    .btn-success:hover {
+        background: #059669;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        background: #ef4444;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+    }
+
+    .leave-table .btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .leave-table .btn span {
+        display: none;
+    }
+
+    .leave-table .btn:hover span {
+        display: inline;
+        margin-left: 0.3rem;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-success {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .action-form {
+        display: inline;
+    }
+
+    .text-muted {
+        color: #6c757d;
+    }
+
+    .availability-msg {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    /* Modal for rejection reason */
+    .modal-backdrop-simple {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+    }
+
+    .modal-backdrop-simple.show {
+        display: flex;
+    }
+
+    .modal-card-simple {
+        background: #fff;
+        border-radius: 12px;
+        width: 520px;
+        max-width: 92vw;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+    }
+
+    .modal-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .modal-card-body {
+        padding: 16px 20px;
+    }
+
+    .modal-actions {
+        padding: 12px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .form-row .form-group {
+        margin-bottom: 0;
+    }
+</style>
+
+<div id="rejectReasonModal" class="modal-backdrop-simple" aria-hidden="true" role="dialog"
+    aria-labelledby="rejectModalTitle">
+    <div class="modal-card-simple" role="document">
+        <div class="modal-card-header">
+            <h5 id="rejectModalTitle" style="margin:0">Reject Leave</h5>
+            <button type="button" class="btn btn-sm btn-light" id="rejectModalCloseBtn">Close</button>
+        </div>
+        <div class="modal-card-body">
+            <label for="rejectReasonInput" class="form-label">Provide a reason for rejection</label>
+            <input type="text" id="rejectReasonInput" class="form-control" placeholder="Reason" />
+            <div id="rejectReasonError" class="text-danger" style="margin-top:8px; display:none;">Reason is
+                required</div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="rejectCancelBtn">Cancel</button>
+            <button type="button" class="btn btn-danger" id="rejectConfirmBtn">Reject</button>
+        </div>
+    </div>
+    <form id="rejectHiddenForm" method="POST" style="display:none"></form>
+</div>
+
+<script>
+    (function () {
+        const modal = document.getElementById('rejectReasonModal');
+        const input = document.getElementById('rejectReasonInput');
+        const error = document.getElementById('rejectReasonError');
+        const closeBtn = document.getElementById('rejectModalCloseBtn');
+        const cancelBtn = document.getElementById('rejectCancelBtn');
+        const confirmBtn = document.getElementById('rejectConfirmBtn');
+        const hiddenForm = document.getElementById('rejectHiddenForm');
+        let currentLeaveId = null;
+
+        function openModal(leaveId) {
+            currentLeaveId = leaveId;
+            input.value = '';
+            error.style.display = 'none';
+            modal.classList.add('show');
+            modal.setAttribute('aria-hidden', 'false');
+            input.focus();
+        }
+        function closeModal() {
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden', 'true');
+            currentLeaveId = null;
+        }
+        document.querySelectorAll('.btn-reject').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const leaveId = this.getAttribute('data-leave-id');
+                openModal(leaveId);
+            });
+        });
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        confirmBtn.addEventListener('click', function () {
+            const reason = input.value.trim();
+            if (!reason) {
+                error.style.display = 'block';
+                input.focus();
+                return;
+            }
+            hiddenForm.innerHTML = '';
+            hiddenForm.action = '/admin/reject-leave/' + encodeURIComponent(currentLeaveId);
+            const reasonInput = document.createElement('input');
+            reasonInput.type = 'hidden';
+            reasonInput.name = 'rejection_reason';
+            reasonInput.value = reason;
+            hiddenForm.appendChild(reasonInput);
+            hiddenForm.submit();
+        });
+        modal.addEventListener('click', function (e) { if (e.target === modal) { closeModal(); } });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeModal(); } });
+    })();
+</script>
+
+<div id="editUserModal" class="modal-backdrop-simple" aria-hidden="true" role="dialog"
+    aria-labelledby="editUserModalTitle">
+    <div class="modal-card-simple" role="document">
+        <div class="modal-card-header">
+            <h5 id="editUserModalTitle" style="margin:0">Edit User</h5>
+            <button type="button" class="btn btn-sm btn-light" id="editUserModalCloseBtn">Close</button>
+        </div>
+        <form id="editUserForm" method="POST">
+            <div class="modal-card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="edit_first_name">First Name</label>
+                        <input type="text" name="first_name" id="edit_first_name" class="form-control modern-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="edit_last_name">Last Name</label>
+                        <input type="text" name="last_name" id="edit_last_name" class="form-control modern-input">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="edit_employee_id">Employee ID</label>
+                        <input type="text" name="employee_id" id="edit_employee_id" class="form-control modern-input"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="edit_department">Department</label>
+                        <input type="text" name="department" id="edit_department" class="form-control modern-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit_job_title">Job Title</label>
+                    <input type="text" name="job_title" id="edit_job_title" class="form-control modern-input">
+                </div>
+                <div class="form-row" style="margin-bottom:0">
+                    <div class="form-group modern-checkbox-group">
+                        <label class="form-label modern-checkbox-label">
+                            <input type="checkbox" name="is_hr" id="edit_is_hr" class="modern-checkbox">
+                            <span class="checkbox-text">HR Staff</span>
+                        </label>
+                    </div>
+                    <div class="form-group modern-checkbox-group">
+                        <label class="form-label modern-checkbox-label">
+                            <input type="checkbox" name="is_active" id="edit_is_active" class="modern-checkbox">
+                            <span class="checkbox-text">Active Account</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="editCancelBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    (function () {
+        const modal = document.getElementById('editUserModal');
+        const form = document.getElementById('editUserForm');
+        const closeBtn = document.getElementById('editUserModalCloseBtn');
+        const cancelBtn = document.getElementById('editCancelBtn');
+        const fFirst = document.getElementById('edit_first_name');
+        const fLast = document.getElementById('edit_last_name');
+        const fEmpId = document.getElementById('edit_employee_id');
+        const fDept = document.getElementById('edit_department');
+        const fTitle = document.getElementById('edit_job_title');
+        const fIsHr = document.getElementById('edit_is_hr');
+        const fIsActive = document.getElementById('edit_is_active');
+
+        function openModalFromButton(btn) {
+            const userId = btn.getAttribute('data-user-id');
+            fFirst.value = btn.getAttribute('data-first-name') || '';
+            fLast.value = btn.getAttribute('data-last-name') || '';
+            fEmpId.value = btn.getAttribute('data-employee-id') || '';
+            fDept.value = btn.getAttribute('data-department') || '';
+            fTitle.value = btn.getAttribute('data-job-title') || '';
+            fIsHr.checked = (btn.getAttribute('data-is-hr') === '1');
+            fIsActive.checked = (btn.getAttribute('data-is-active') === '1');
+            form.action = '/admin/edit-user/' + encodeURIComponent(userId);
+            modal.classList.add('show');
+            modal.setAttribute('aria-hidden', 'false');
+            fFirst.focus();
+        }
+        function closeModal() {
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden', 'true');
+            form.action = '';
+        }
+
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', function () { openModalFromButton(this); });
+        });
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', function (e) { e.preventDefault(); closeModal(); });
+        modal.addEventListener('click', function (e) { if (e.target === modal) { closeModal(); } });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeModal(); } });
+    })();
+    document.addEventListener('DOMContentLoaded', function () {
+        // Prepare data for charts
+        const leaves = [
+            {% for leave in leaves %}
+            {
+            status: {{ leave.status | tojson }},
+        type: {{ leave.leave_type | tojson }}
+            }{% if not loop.last %}, {% endif %}
+    {% endfor %}
+        ];
+
+    // Status Chart
+    const statusCounts = {
+        'Approved': 0,
+        'Pending': 0,
+        'Rejected': 0
+    };
+
+    leaves.forEach(l => {
+        if (statusCounts.hasOwnProperty(l.status)) {
+            statusCounts[l.status]++;
+        }
+    });
+
+    const statusCtx = document.getElementById('leaveStatusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Approved', 'Pending', 'Rejected'],
+            datasets: [{
+                data: [statusCounts.Approved, statusCounts.Pending, statusCounts.Rejected],
+                backgroundColor: ['#27ae60', '#f39c12', '#e74c3c'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+
+    // Type Chart
+    const typeCounts = {};
+    leaves.forEach(l => {
+        typeCounts[l.type] = (typeCounts[l.type] || 0) + 1;
+    });
+
+    const typeCtx = document.getElementById('leaveTypeChart').getContext('2d');
+    new Chart(typeCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(typeCounts),
+            datasets: [{
+                label: 'Requests',
+                data: Object.values(typeCounts),
+                backgroundColor: '#3498db',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+    }); // End DOMContentLoaded
+
+
+    // Toggle submenu function (global scope for onclick access)
+    function toggleSubmenu(button) {
+        const menuItem = button.closest('.menu-item-with-submenu');
+        menuItem.classList.toggle('open');
+    }
+</script>

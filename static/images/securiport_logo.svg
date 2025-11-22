@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <style>
+      .blue{fill:#1b66a8}
+      .light{fill:#3a84c6}
+    </style>
+  </defs>
+  <circle cx="100" cy="100" r="90" fill="#ffffff"/>
+  <path class="blue" d="M100,15a85,85 0 1 1-60.1,25.0l18.6,18.6A60,60 0 1 0 100,40Z"/>
+  <path class="light" d="M162,38l-18.8,18.8A60,60 0 0 1 100,160l0,25a85,85 0 0 0 62-147Z"/>
+  <circle cx="100" cy="100" r="28" class="blue"/>
+</svg>

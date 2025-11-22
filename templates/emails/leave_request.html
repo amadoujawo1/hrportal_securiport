@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>New Leave Request</title>
+  <style>
+    body { font-family: Arial, sans-serif; color: #333; }
+    .card { max-width: 700px; margin: 20px auto; border: 1px solid #e6e6e6; border-radius: 8px; overflow: hidden; }
+    .header { background: #1e3a8a; color: white; padding: 16px; }
+    .content { padding: 18px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    td { padding: 8px; border: 1px solid #f1f1f1; }
+    .cta { display: inline-block; padding: 10px 16px; background: #1e3a8a; color: white; text-decoration: none; border-radius: 6px; margin-top: 12px; }
+    .muted { color: #7b8aa5; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h2>New Leave Request</h2>
+    </div>
+    <div class="content">
+      <p>Hello HR Team,</p>
+      <p>A new leave request has been submitted and requires your review. Summary:</p>
+      <table>
+        <tr>
+          <td><strong>Employee</strong></td>
+          <td>{{ leave.employee_name }} ({{ leave.employee_id }})</td>
+        </tr>
+        <tr>
+          <td><strong>Type</strong></td>
+          <td>{{ leave.leave_type }}</td>
+        </tr>
+        <tr>
+          <td><strong>Start</strong></td>
+          <td>{{ leave.start_date.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        <tr>
+          <td><strong>End</strong></td>
+          <td>{{ leave.end_date.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        <tr>
+          <td><strong>Reason</strong></td>
+          <td>{{ leave.reason }}</td>
+        </tr>
+      </table>
+
+      <p>
+        <a class="cta" href="{{ portal_url }}">Open LeaveHub</a>
+      </p>
+
+      <p class="muted">This is an automated message from LeaveHub.</p>
+    </div>
+  </div>
+</body>
+</html>

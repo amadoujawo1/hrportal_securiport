@@ -1,0 +1,162 @@
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 350px;
+}
+
+.notification {
+    background-color: var(--surface);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 12px;
+    animation: slideIn 0.3s ease-out;
+    border-left: 4px solid var(--primary);
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notification-message {
+    flex: 1;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.notification-close:hover {
+    background-color: var(--border);
+    color: var(--text);
+}
+
+.notification-success {
+    border-left-color: var(--success);
+}
+
+.notification-error {
+    border-left-color: var(--danger);
+}
+
+.notification-warning {
+    border-left-color: var(--warning);
+}
+
+#notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--danger);
+    color: white;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+}
+
+/* Document Upload Styles */
+.document-upload {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: var(--background);
+    border-radius: 8px;
+    border: 2px dashed var(--border);
+}
+
+.document-upload.drag-over {
+    border-color: var(--primary);
+    background-color: rgba(59, 130, 246, 0.05);
+}
+
+.document-list {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.document-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background-color: var(--surface);
+    border-radius: 4px;
+    border: 1px solid var(--border);
+}
+
+.document-item a {
+    flex: 1;
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.document-item a:hover {
+    text-decoration: underline;
+}
+
+.btn-delete {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 4px;
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.btn-delete:hover {
+    background-color: var(--danger);
+    color: white;
+}
+
+/* Leave Status Styles */
+.leave-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.status-pending {
+    background-color: #fffbeb;
+    color: #92400e;
+}
+
+.status-approved {
+    background-color: #ecfdf5;
+    color: #065f46;
+}
+
+.status-rejected {
+    background-color: #fef2f2;
+    color: #991b1b;
+}
