@@ -466,35 +466,255 @@
 
         .info-box i {
             color: var(--primary-blue);
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* File Upload */
+        .file-upload-section {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f9fafb;
+        }
+
+        /* Two-column form layout helpers */
+        .form-columns {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .form-column {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 16px;
+            margin-bottom: 12px;
+        }
+
+        .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .column-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Make the two-column layout single-column on small screens */
+        @media (max-width: 992px) {
+            .form-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .file-upload-section:hover {
+            border-color: var(--primary-blue);
+            background: rgba(0, 136, 204, 0.05);
+        }
+
+        .file-upload-section i {
+            font-size: 32px;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+        }
+
+        .file-upload-section p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .file-upload-section input[type="file"] {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: var(--light-bg);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .file-item i {
+            margin-right: 8px;
+        }
+
+        .file-item .remove {
+            color: var(--danger-red);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-submit {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 13px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 136, 204, 0.3);
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background: var(--light-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 13px;
+        }
+
+        .btn-cancel:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Alert */
+        .alert {
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-danger {
+            background: rgba(231, 76, 60, 0.1);
+            color: #c0392b;
+            border-left-color: #e74c3c;
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            border-left-color: #27ae60;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(0, 136, 204, 0.05);
+            border: 1px solid rgba(0, 136, 204, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .info-box i {
+            color: var(--primary-blue);
             margin-right: 10px;
             font-weight: bold;
         }
 
         /* Responsive */
+        /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                padding: 10px;
+                width: 260px;
+                height: 100vh;
+                position: fixed;
+                left: -260px;
+                top: 0;
+                z-index: 1000;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
             }
 
             .sidebar-brand {
-                display: none;
+                display: flex;
+                /* Show brand in sidebar on mobile */
             }
 
             .sidebar-logout-btn {
-                display: none;
+                display: flex;
+                /* Show logout in sidebar on mobile */
             }
 
             .sidebar-menu a {
-                padding: 8px 10px;
-                font-size: 13px;
+                padding: 12px 15px;
+                font-size: 14px;
             }
 
             .main-content {
                 margin-left: 0;
-                padding: 12px;
+                padding: 15px;
             }
 
             .form-row {
@@ -506,351 +726,407 @@
             }
 
             .page-header {
-                flex-direction: column;
+                flex-direction: row;
+                align-items: center;
                 gap: 15px;
+                flex-wrap: wrap;
+            }
+
+            .page-header h1 {
+                font-size: 24px;
+                order: 2;
+            }
+
+            .btn-back {
+                order: 3;
+                width: 100%;
+                text-align: center;
+                margin-top: 10px;
+            }
+
+            .hamburger-btn {
+                display: block;
+                background: none;
+                border: none;
+                font-size: 24px;
+                color: var(--text-primary);
+                cursor: pointer;
+                padding: 5px;
+                order: 1;
+            }
+        }
+
+        /* Desktop specific */
+        @media (min-width: 769px) {
+            .hamburger-btn {
+                display: none;
+            }
+
+            .sidebar-overlay {
+                display: none !important;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="main-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-brand">
-                <i class="far fa-clock"></i>
-                <div>
-                    <h3>SECURIPORT</h3>
-                    <div style="font-size: 12px; opacity: 0.8; margin-top: 2px;">LeaveHub</div>
+
+    <body>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="main-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-brand">
+                    <i class="far fa-clock"></i>
+                    <div>
+                        <h3>SECURIPORT</h3>
+                        <div style="font-size: 12px; opacity: 0.8; margin-top: 2px;">LeaveHub</div>
+                    </div>
                 </div>
-            </div>
 
-            <ul class="sidebar-menu">
-                <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="{{ url_for('apply_leave') }}" class="active"><i class="fas fa-file-alt"></i> Request
-                        Leave</a></li>
-                <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-history"></i> Leave History</a></li>
-                {% if current_user.is_admin %}
-                <li><a href="{{ url_for('admin') }}"><i class="fas fa-shield-alt"></i> Admin</a></li>
-                {% endif %}
-            </ul>
+                <ul class="sidebar-menu">
+                    <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="{{ url_for('apply_leave') }}" class="active"><i class="fas fa-file-alt"></i> Request
+                            Leave</a></li>
+                    <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-history"></i> Leave History</a></li>
+                    {% if current_user.is_admin %}
+                    <li><a href="{{ url_for('admin') }}"><i class="fas fa-shield-alt"></i> Admin</a></li>
+                    {% endif %}
+                </ul>
 
-            <a href="{{ url_for('logout') }}" class="sidebar-logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Page Header -->
-            <div class="page-header">
-                <h1>Request Leave</h1>
-                <a href="{{ url_for('dashboard') }}" class="btn-back">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                <a href="{{ url_for('logout') }}" class="sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
 
-            <!-- Flash Messages -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show"
-                role="alert">
-                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {% endfor %}
-            {% endif %}
-            {% endwith %}
-
-            <!-- Form Card -->
-            <div class="form-card">
-                <div class="form-header">
-                    <h2>
-                        <i class="fas fa-calendar-alt"></i>
-                        New Leave Request
-                    </h2>
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <button class="hamburger-btn" id="mobileSidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Request Leave</h1>
+                    <a href="{{ url_for('dashboard') }}" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
                 </div>
 
-                <div class="form-body">
-                    <!-- Info Box -->
-                    <div class="info-box">
-                        <i class="fas fa-info-circle"></i>
-                        Fill out all required fields to submit your leave request. It will be reviewed by your HR
-                        manager.
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show"
+                    role="alert">
+                    <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <!-- Form Card -->
+                <div class="form-card">
+                    <div class="form-header">
+                        <h2>
+                            <i class="fas fa-calendar-alt"></i>
+                            New Leave Request
+                        </h2>
                     </div>
 
-                    <form method="POST" enctype="multipart/form-data" class="leave-form">
-                        <div class="form-columns">
-                            <!-- Left Column -->
-                            <div class="form-column">
-                                <div class="column-title"><i class="fas fa-user"></i> Personal Information</div>
-                                <div class="form-grid">
-                                    <div class="form-floating">
-                                        <input type="text" class="form-control" id="employee_name" name="employee_name"
-                                            placeholder="Employee Name"
-                                            value="{{ current_user.name or current_user.username }}" required>
-                                        <label for="employee_name">Employee Name *</label>
+                    <div class="form-body">
+                        <!-- Info Box -->
+                        <div class="info-box">
+                            <i class="fas fa-info-circle"></i>
+                            Fill out all required fields to submit your leave request. It will be reviewed by your HR
+                            manager.
+                        </div>
+
+                        <form method="POST" enctype="multipart/form-data" class="leave-form">
+                            <div class="form-columns">
+                                <!-- Left Column -->
+                                <div class="form-column">
+                                    <div class="column-title"><i class="fas fa-user"></i> Personal Information</div>
+                                    <div class="form-grid">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="employee_name"
+                                                name="employee_name" placeholder="Employee Name"
+                                                value="{{ current_user.name or current_user.username }}" required>
+                                            <label for="employee_name">Employee Name *</label>
+                                        </div>
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="employee_id" name="employee_id"
+                                                placeholder="Employee ID"
+                                                value="{{ current_user.employee_id or 'N/A' }}" readonly>
+                                            <label for="employee_id">Employee ID *</label>
+                                        </div>
+                                        <div class="form-floating full-width">
+                                            <input type="text" class="form-control" id="designation" name="designation"
+                                                placeholder="Employee Job Title" required>
+                                            <label for="designation">Employee Job Title *</label>
+                                        </div>
                                     </div>
-                                    <div class="form-floating">
-                                        <input type="text" class="form-control" id="employee_id" name="employee_id"
-                                            placeholder="Employee ID" value="{{ current_user.employee_id or 'N/A' }}"
-                                            readonly>
-                                        <label for="employee_id">Employee ID *</label>
-                                    </div>
-                                    <div class="form-floating full-width">
-                                        <input type="text" class="form-control" id="designation" name="designation"
-                                            placeholder="Employee Job Title" required>
-                                        <label for="designation">Employee Job Title *</label>
+
+                                    <div class="column-title" style="margin-top:1rem"><i
+                                            class="fas fa-calendar-alt"></i>
+                                        Leave Details</div>
+                                    <div class="form-grid">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="leave_type" name="leave_type" required>
+                                                <option value="" selected disabled>Select leave type...</option>
+                                                <option value="Casual Leave">Casual Leave</option>
+                                                <option value="Sick Leave">Sick Leave</option>
+                                                <option value="Annual Leave">Annual Leave</option>
+                                                <option value="Maternity Leave">Maternity Leave</option>
+                                                <option value="Paternity Leave">Paternity Leave</option>
+                                                <option value="Unpaid Leave">Unpaid Leave</option>
+                                                <option value="Other">Others</option>
+                                            </select>
+                                            <label for="leave_type">Leave Type *</label>
+                                        </div>
+                                        <div class="form-floating">
+                                            <input type="date" class="form-control" id="start_date" name="start_date"
+                                                value="{{ today_date }}" min="{{ today_date }}" required>
+                                            <label for="start_date">Start Date *</label>
+                                        </div>
+                                        <div class="form-floating">
+                                            <input type="date" class="form-control" id="end_date" name="end_date"
+                                                value="{{ today_date }}" min="{{ today_date }}" required>
+                                            <label for="end_date">End Date *</label>
+                                        </div>
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="duration_months"
+                                                name="duration_months" placeholder="0" value="0" min="0" step="0.1"
+                                                readonly>
+                                            <label for="duration_months">Duration (Months)</label>
+                                        </div>
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="duration_days"
+                                                name="duration_days" placeholder="0" value="0" min="0" readonly>
+                                            <label for="duration_days">Duration (Days)</label>
+                                        </div>
+                                        <div class="form-floating full-width" id="otherLeaveWrapper"
+                                            style="display:none; margin-top:8px;">
+                                            <input type="text" class="form-control" id="other_leave_type"
+                                                name="other_leave_type" placeholder="Specify other leave type">
+                                            <label for="other_leave_type">Other Leave Type</label>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="column-title" style="margin-top:1rem"><i class="fas fa-calendar-alt"></i>
-                                    Leave Details</div>
-                                <div class="form-grid">
-                                    <div class="form-floating">
-                                        <select class="form-select" id="leave_type" name="leave_type" required>
-                                            <option value="" selected disabled>Select leave type...</option>
-                                            <option value="Casual Leave">Casual Leave</option>
-                                            <option value="Sick Leave">Sick Leave</option>
-                                            <option value="Annual Leave">Annual Leave</option>
-                                            <option value="Maternity Leave">Maternity Leave</option>
-                                            <option value="Paternity Leave">Paternity Leave</option>
-                                            <option value="Unpaid Leave">Unpaid Leave</option>
-                                            <option value="Other">Others</option>
-                                        </select>
-                                        <label for="leave_type">Leave Type *</label>
+                                <!-- Right Column -->
+                                <div class="form-column">
+                                    <div class="column-title"><i class="fas fa-info-circle"></i> Additional Information
                                     </div>
-                                    <div class="form-floating">
-                                        <input type="date" class="form-control" id="start_date" name="start_date"
-                                            value="{{ today_date }}" min="{{ today_date }}" required>
-                                        <label for="start_date">Start Date *</label>
+                                    <div class="form-grid">
+                                        <div class="form-floating full-width">
+                                            <textarea class="form-control" id="reason" name="reason"
+                                                placeholder="Provide detailed reason" style="height: 140px"
+                                                required></textarea>
+                                            <label for="reason">Reason for Leave *</label>
+                                        </div>
                                     </div>
-                                    <div class="form-floating">
-                                        <input type="date" class="form-control" id="end_date" name="end_date"
-                                            value="{{ today_date }}" min="{{ today_date }}" required>
-                                        <label for="end_date">End Date *</label>
+
+                                    <div class="column-title" style="margin-top:1rem"><i class="fas fa-file-upload"></i>
+                                        Supporting Documents</div>
+                                    <div class="file-upload-section"
+                                        onclick="document.getElementById('fileInput').click();">
+                                        <i class="fas fa-cloud-upload-alt" style="font-size:2rem"></i>
+                                        <p style="margin-top:0.5rem"><strong>Click to upload</strong> or drag and
+                                            drop<br>
+                                            PNG, JPG, PDF up to 10MB</p>
+                                        <input type="file" id="fileInput" name="documents" multiple
+                                            accept=".png,.jpg,.jpeg,.pdf" style="display:none">
                                     </div>
-                                    <div class="form-floating">
-                                        <input type="number" class="form-control" id="duration_months"
-                                            name="duration_months" placeholder="0" value="0" min="0" step="0.1"
-                                            readonly>
-                                        <label for="duration_months">Duration (Months)</label>
-                                    </div>
-                                    <div class="form-floating">
-                                        <input type="number" class="form-control" id="duration_days"
-                                            name="duration_days" placeholder="0" value="0" min="0" readonly>
-                                        <label for="duration_days">Duration (Days)</label>
-                                    </div>
-                                    <div class="form-floating full-width" id="otherLeaveWrapper"
-                                        style="display:none; margin-top:8px;">
-                                        <input type="text" class="form-control" id="other_leave_type"
-                                            name="other_leave_type" placeholder="Specify other leave type">
-                                        <label for="other_leave_type">Other Leave Type</label>
-                                    </div>
+                                    <div class="file-list" id="fileList"></div>
+
+
                                 </div>
                             </div>
 
-                            <!-- Right Column -->
-                            <div class="form-column">
-                                <div class="column-title"><i class="fas fa-info-circle"></i> Additional Information
-                                </div>
-                                <div class="form-grid">
-                                    <div class="form-floating full-width">
-                                        <textarea class="form-control" id="reason" name="reason"
-                                            placeholder="Provide detailed reason" style="height: 140px"
-                                            required></textarea>
-                                        <label for="reason">Reason for Leave *</label>
-                                    </div>
-                                </div>
-
-                                <div class="column-title" style="margin-top:1rem"><i class="fas fa-file-upload"></i>
-                                    Supporting Documents</div>
-                                <div class="file-upload-section"
-                                    onclick="document.getElementById('fileInput').click();">
-                                    <i class="fas fa-cloud-upload-alt" style="font-size:2rem"></i>
-                                    <p style="margin-top:0.5rem"><strong>Click to upload</strong> or drag and drop<br>
-                                        PNG, JPG, PDF up to 10MB</p>
-                                    <input type="file" id="fileInput" name="documents" multiple
-                                        accept=".png,.jpg,.jpeg,.pdf" style="display:none">
-                                </div>
-                                <div class="file-list" id="fileList"></div>
-
-
+                            <!-- Form Actions -->
+                            <div class="form-actions">
+                                <button type="submit" id="submitBtn" class="btn-submit">
+                                    <i class="fas fa-paper-plane"></i> Submit Request
+                                </button>
+                                <a href="{{ url_for('dashboard') }}" class="btn-cancel">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
                             </div>
-                        </div>
-
-                        <!-- Form Actions -->
-                        <div class="form-actions">
-                            <button type="submit" id="submitBtn" class="btn-submit">
-                                <i class="fas fa-paper-plane"></i> Submit Request
-                            </button>
-                            <a href="{{ url_for('dashboard') }}" class="btn-cancel">
-                                <i class="fas fa-times"></i> Cancel
-                            </a>
-                        </div>
-                        <div id="date-validation-message" style="margin-top:10px; color:#dc3545; display:none;"></div>
-                    </form>
+                            <div id="date-validation-message" style="margin-top:10px; color:#dc3545; display:none;">
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Sidebar active link
-        document.querySelectorAll('.sidebar-menu a').forEach(link => {
-            if (link.getAttribute('href') === window.location.pathname) {
-                link.classList.add('active');
-            }
-        });
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Sidebar active link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                if (link.getAttribute('href') === window.location.pathname) {
+                    link.classList.add('active');
+                }
+            });
 
-        // File upload handling
-        const fileInput = document.getElementById('fileInput');
-        const fileList = document.getElementById('fileList');
-        const uploadSection = document.querySelector('.file-upload-section');
+            // File upload handling
+            const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
+            const uploadSection = document.querySelector('.file-upload-section');
 
-        fileInput.addEventListener('change', updateFileList);
+            fileInput.addEventListener('change', updateFileList);
 
-        function updateFileList() {
-            fileList.innerHTML = '';
-            if (fileInput.files.length > 0) {
-                uploadSection.style.display = 'none';
-                Array.from(fileInput.files).forEach((file, index) => {
-                    const fileItem = document.createElement('div');
-                    fileItem.className = 'file-item';
-                    fileItem.innerHTML = `
+            function updateFileList() {
+                fileList.innerHTML = '';
+                if (fileInput.files.length > 0) {
+                    uploadSection.style.display = 'none';
+                    Array.from(fileInput.files).forEach((file, index) => {
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item';
+                        fileItem.innerHTML = `
                         <span><i class="fas fa-file"></i> ${file.name} (${(file.size / 1024).toFixed(2)} KB)</span>
                         <span class="remove" onclick="removeFile(${index})">Remove</span>
                     `;
-                    fileList.appendChild(fileItem);
-                });
-            } else {
-                uploadSection.style.display = 'block';
-            }
-        }
-
-        function removeFile(index) {
-            const dt = new DataTransfer();
-            Array.from(fileInput.files).forEach((file, i) => {
-                if (i !== index) dt.items.add(file);
-            });
-            fileInput.files = dt.files;
-            updateFileList();
-        }
-
-        // Drag and drop
-        uploadSection.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadSection.style.background = 'rgba(0, 136, 204, 0.05)';
-        });
-
-        uploadSection.addEventListener('dragleave', () => {
-            uploadSection.style.background = '#f9fafb';
-        });
-
-        uploadSection.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadSection.style.background = '#f9fafb';
-            fileInput.files = e.dataTransfer.files;
-            updateFileList();
-        });
-
-        // Close alerts
-        document.querySelectorAll('.alert-dismissible').forEach(alert => {
-            setTimeout(() => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            }, 5000);
-        });
-
-        // Calculate durations (days and months) when start/end dates change
-        (function () {
-            const startInput = document.getElementById('start_date');
-            const endInput = document.getElementById('end_date');
-            const daysInput = document.getElementById('duration_days');
-            const monthsInput = document.getElementById('duration_months');
-            const submitBtn = document.getElementById('submitBtn');
-            const validationMsg = document.getElementById('date-validation-message');
-
-            if (!startInput || !endInput || !daysInput || !monthsInput) return;
-
-            function computeDurations() {
-                validationMsg.style.display = 'none';
-                submitBtn.disabled = false;
-
-                const s = startInput.value;
-                const e = endInput.value;
-                if (!s || !e) {
-                    // nothing to compute
-                    return;
-                }
-
-                const start = new Date(s);
-                const end = new Date(e);
-
-                // Normalize to dates only
-                start.setHours(0, 0, 0, 0);
-                end.setHours(0, 0, 0, 0);
-
-                if (end < start) {
-                    // invalid range
-                    validationMsg.textContent = 'End date cannot be before start date.';
-                    validationMsg.style.display = 'block';
-                    submitBtn.disabled = true;
-                    daysInput.value = 0;
-                    monthsInput.value = 0;
-                    return;
-                }
-
-                // Inclusive days
-                const msPerDay = 24 * 60 * 60 * 1000;
-                const diffDays = Math.round((end - start) / msPerDay) + 1;
-                daysInput.value = diffDays;
-
-                // Approximate months using average month length (30.44 days)
-                const months = Math.round((diffDays / 30.44) * 10) / 10;
-                monthsInput.value = months;
-            }
-
-            startInput.addEventListener('change', computeDurations);
-            endInput.addEventListener('change', computeDurations);
-
-            // Toggle other leave type input when "Other" is selected
-            const leaveTypeSelect = document.getElementById('leave_type');
-            const otherWrapper = document.getElementById('otherLeaveWrapper');
-            const otherInput = document.getElementById('other_leave_type');
-            function toggleOtherLeave() {
-                if (!leaveTypeSelect) return;
-                const val = leaveTypeSelect.value || '';
-                if (val.toLowerCase() === 'other' || val.toLowerCase() === 'others') {
-                    otherWrapper.style.display = 'block';
-                    otherInput.required = true;
+                        fileList.appendChild(fileItem);
+                    });
                 } else {
-                    otherWrapper.style.display = 'none';
-                    otherInput.required = false;
-                    otherInput.value = '';
+                    uploadSection.style.display = 'block';
                 }
             }
-            if (leaveTypeSelect) {
-                leaveTypeSelect.addEventListener('change', toggleOtherLeave);
-                // initialize on load
-                window.addEventListener('load', toggleOtherLeave);
+
+            function removeFile(index) {
+                const dt = new DataTransfer();
+                Array.from(fileInput.files).forEach((file, i) => {
+                    if (i !== index) dt.items.add(file);
+                });
+                fileInput.files = dt.files;
+                updateFileList();
             }
 
-            // Compute on load
-            window.addEventListener('load', computeDurations);
-        })();
-        (function () {
-            var btn = document.getElementById('mobileSidebarToggle');
-            if (!btn) return;
-            var sidebar = document.querySelector('.sidebar');
-            btn.addEventListener('click', function () {
-                if (sidebar) sidebar.classList.toggle('sidebar-hidden');
+            // Drag and drop
+            uploadSection.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadSection.style.background = 'rgba(0, 136, 204, 0.05)';
             });
-        })();
-    </script>
-</body>
+
+            uploadSection.addEventListener('dragleave', () => {
+                uploadSection.style.background = '#f9fafb';
+            });
+
+            uploadSection.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadSection.style.background = '#f9fafb';
+                fileInput.files = e.dataTransfer.files;
+                updateFileList();
+            });
+
+            // Close alerts
+            document.querySelectorAll('.alert-dismissible').forEach(alert => {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+
+            // Calculate durations (days and months) when start/end dates change
+            (function () {
+                const startInput = document.getElementById('start_date');
+                const endInput = document.getElementById('end_date');
+                const daysInput = document.getElementById('duration_days');
+                const monthsInput = document.getElementById('duration_months');
+                const submitBtn = document.getElementById('submitBtn');
+                const validationMsg = document.getElementById('date-validation-message');
+
+                if (!startInput || !endInput || !daysInput || !monthsInput) return;
+
+                function computeDurations() {
+                    validationMsg.style.display = 'none';
+                    submitBtn.disabled = false;
+
+                    const s = startInput.value;
+                    const e = endInput.value;
+                    if (!s || !e) {
+                        // nothing to compute
+                        return;
+                    }
+
+                    const start = new Date(s);
+                    const end = new Date(e);
+
+                    // Normalize to dates only
+                    start.setHours(0, 0, 0, 0);
+                    end.setHours(0, 0, 0, 0);
+
+                    if (end < start) {
+                        // invalid range
+                        validationMsg.textContent = 'End date cannot be before start date.';
+                        validationMsg.style.display = 'block';
+                        submitBtn.disabled = true;
+                        daysInput.value = 0;
+                        monthsInput.value = 0;
+                        return;
+                    }
+
+                    // Inclusive days
+                    const msPerDay = 24 * 60 * 60 * 1000;
+                    const diffDays = Math.round((end - start) / msPerDay) + 1;
+                    daysInput.value = diffDays;
+
+                    // Approximate months using average month length (30.44 days)
+                    const months = Math.round((diffDays / 30.44) * 10) / 10;
+                    monthsInput.value = months;
+                }
+
+                startInput.addEventListener('change', computeDurations);
+                endInput.addEventListener('change', computeDurations);
+
+                // Toggle other leave type input when "Other" is selected
+                const leaveTypeSelect = document.getElementById('leave_type');
+                const otherWrapper = document.getElementById('otherLeaveWrapper');
+                const otherInput = document.getElementById('other_leave_type');
+                function toggleOtherLeave() {
+                    if (!leaveTypeSelect) return;
+                    const val = leaveTypeSelect.value || '';
+                    if (val.toLowerCase() === 'other' || val.toLowerCase() === 'others') {
+                        otherWrapper.style.display = 'block';
+                        otherInput.required = true;
+                    } else {
+                        otherWrapper.style.display = 'none';
+                        otherInput.required = false;
+                        otherInput.value = '';
+                    }
+                }
+                if (leaveTypeSelect) {
+                    leaveTypeSelect.addEventListener('change', toggleOtherLeave);
+                    // initialize on load
+                    window.addEventListener('load', toggleOtherLeave);
+                }
+
+                // Compute on load
+                window.addEventListener('load', computeDurations);
+            })();
+            (function () {
+                var btn = document.getElementById('mobileSidebarToggle');
+                var sidebar = document.querySelector('.sidebar');
+                var overlay = document.getElementById('sidebarOverlay');
+
+                function toggleSidebar() {
+                    sidebar.classList.toggle('active');
+                    overlay.classList.toggle('active');
+                }
+
+                if (btn) {
+                    btn.addEventListener('click', toggleSidebar);
+                }
+
+                if (overlay) {
+                    overlay.addEventListener('click', toggleSidebar);
+                }
+            })();
+
+        </script>
+    </body>
 
 </html>

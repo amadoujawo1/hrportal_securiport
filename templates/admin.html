@@ -569,30 +569,55 @@
         }
 
         /* Responsive */
+        /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                padding: 10px;
+                width: 260px;
+                height: 100vh;
+                position: fixed;
+                left: -260px;
+                top: 0;
+                z-index: 1000;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
             }
 
             .sidebar-brand {
-                display: none;
+                display: flex;
+                /* Show brand in sidebar on mobile */
             }
 
             .sidebar-user {
-                display: none;
+                display: block;
+                /* Show user in sidebar on mobile */
             }
 
             .sidebar-menu a {
-                padding: 8px 10px;
-                font-size: 13px;
+                padding: 12px 15px;
+                font-size: 14px;
             }
 
             .main-content {
                 margin-left: 0;
-                padding: 12px;
+                padding: 15px;
             }
 
             .stats-grid {
@@ -608,993 +633,1055 @@
             }
 
             .top-bar {
-                flex-direction: column;
+                flex-direction: row;
+                /* Keep row for hamburger + welcome */
                 gap: 15px;
+                align-items: center;
+            }
+
+            .welcome-section {
+                display: none;
+                /* Hide welcome text on mobile to save space */
+            }
+
+            .hamburger-btn {
+                display: block;
+                background: none;
+                border: none;
+                font-size: 24px;
+                color: var(--text-primary);
+                cursor: pointer;
+                padding: 5px;
+            }
+        }
+
+        /* Desktop specific */
+        @media (min-width: 769px) {
+            .hamburger-btn {
+                display: none;
+            }
+
+            .sidebar-overlay {
+                display: none !important;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="main-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-brand">
-                <img src="{{ url_for('static', filename='images/securiport_logo.svg') }}" alt="SECURIPORT Logo"
-                    style="height:40px;width:40px;border-radius:50%;margin-right:10px;object-fit:cover;" />
-                <div>
-                    <h3>SECURIPORT</h3>
-                    <div class="sidebar-brand-small">LeaveHub</div>
+
+    <body>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="main-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-brand">
+                    <img src="{{ url_for('static', filename='images/securiport_logo.svg') }}" alt="SECURIPORT Logo"
+                        style="height:40px;width:40px;border-radius:50%;margin-right:10px;object-fit:cover;" />
+                    <div>
+                        <h3>SECURIPORT</h3>
+                        <div class="sidebar-brand-small">LeaveHub</div>
+                    </div>
                 </div>
-            </div>
 
 
-            <ul class="sidebar-menu">
-                <li>
-                    <a href="{{ url_for('admin') }}" class="active">
-                        <i class="fas fa-tasks"></i>
-                        <span>Admin Panel</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ url_for('dashboard') }}">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="menu-item-with-submenu">
-                    <button class="menu-toggle" onclick="toggleSubmenu(this)">
-                        <span>
-                            <i class="fas fa-paper-plane"></i>
-                            <span>Request</span>
-                        </span>
-                        <i class="fas fa-chevron-down toggle-icon"></i>
-                    </button>
-                    <ul class="submenu">
-                        <li>
-                            <a href="{{ url_for('apply_leave') }}">
-                                <i class="fas fa-file-alt"></i>
-                                <span>Leave Request</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="{{ url_for('admin') }}" class="active">
+                            <i class="fas fa-tasks"></i>
+                            <span>Admin Panel</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard') }}">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="menu-item-with-submenu">
+                        <button class="menu-toggle" onclick="toggleSubmenu(this)">
+                            <span>
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Request</span>
+                            </span>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </button>
+                        <ul class="submenu">
+                            <li>
+                                <a href="{{ url_for('apply_leave') }}">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span>Leave Request</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
 
 
-            <div class="sidebar-user">
-                <div class="sidebar-user-avatar">{{ current_user.name[0] }}</div>
-                <div class="sidebar-user-name">{{ current_user.name }}</div>
-                <div class="sidebar-user-role">Administrator</div>
-                <a href="{{ url_for('logout') }}" class="sidebar-logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Flash Messages -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            {% for category, message in messages %}
-            <div class="flash-message {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">{{
-                message }}
-            </div>
-            {% endfor %}
-            {% endif %}
-            {% endwith %}
-
-            <!-- Top Bar -->
-            <div class="top-bar">
-                <div class="welcome-section">
-                    <h1>Admin Panel</h1>
-                    <p>Manage users, leave requests, and system settings</p>
-                </div>
-                <div>
-                    <a href="{{ url_for('logout') }}" class="btn btn-logout"
-                        style="display:inline-flex; align-items:center; gap:8px;">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar">{{ current_user.name[0] }}</div>
+                    <div class="sidebar-user-name">{{ current_user.name }}</div>
+                    <div class="sidebar-user-role">Administrator</div>
+                    <a href="{{ url_for('logout') }}" class="sidebar-logout-btn">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Stats Grid -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-content">
-                        <div class="stat-label">Total Users</div>
-                        <div class="stat-value">{{ users|length }}</div>
-                        <div class="stat-description">Active in system</div>
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="flash-message {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">
+                    {{
+                    message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <!-- Top Bar -->
+                <div class="top-bar">
+                    <button class="hamburger-btn" id="mobileSidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="welcome-section d-none d-md-block">
+                        <h1>Admin Panel</h1>
+                        <p>Manage users, leave requests, and system settings</p>
                     </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
+                    <div class="d-md-none">
+                        <span style="font-weight:600; font-size:18px;">Admin Panel</span>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('logout') }}" class="btn btn-logout"
+                            style="display:inline-flex; align-items:center; gap:8px;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span class="d-none d-md-inline">Logout</span>
+                        </a>
                     </div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-content">
-                        <div class="stat-label">Active Users</div>
-                        <div class="stat-value">{{ users|selectattr('is_active', 'equalto', true)|list|length }}</div>
-                        <div class="stat-description">Currently active</div>
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <div class="stat-label">Total Users</div>
+                            <div class="stat-value">{{ users|length }}</div>
+                            <div class="stat-description">Active in system</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
                     </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-user-check"></i>
-                    </div>
-                </div>
 
-                <div class="stat-card">
-                    <div class="stat-content">
-                        <div class="stat-label">HR Staff</div>
-                        <div class="stat-value">{{ users|selectattr('is_hr', 'equalto', true)|list|length }}</div>
-                        <div class="stat-description">HR personnel</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-content">
-                        <div class="stat-label">Total Employees</div>
-                        <div class="stat-value">{{ admin_total_employees if admin_total_employees is not none else
-                            users|length
-                            }}</div>
-                        <div class="stat-description">Active employees</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-layer-group"></i>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-content">
-                        <div class="stat-label">System Leave Balance</div>
-                        <div class="stat-value">{{ admin_total_leave_balance if admin_total_leave_balance is not none
-                            else '-'
-                            }}</div>
-                        <div class="stat-description">Total days remaining (30 per employee)</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-balance-scale"></i>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-content">
-                        <div class="stat-label">Used This Year</div>
-                        <div class="stat-value">{{ admin_used_leaves_this_year if admin_used_leaves_this_year is not
-                            none else
-                            '-' }}</div>
-                        <div class="stat-description">Approved days used this year</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-hourglass-half"></i>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-content">
-                        <div class="stat-label">Leave Requests</div>
-                        <div class="stat-value">{{ total_leaves }}</div>
-                        <div class="stat-description green">{{ approved_leaves }} approved</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Charts Grid -->
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3>Leave Status Distribution</h3>
-                    </div>
-                    <div style="height: 250px; position: relative;">
-                        <canvas id="leaveStatusChart"></canvas>
-                    </div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3>Leaves by Type</h3>
-                    </div>
-                    <div style="height: 250px; position: relative;">
-                        <canvas id="leaveTypeChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Content Grid -->
-            <div class="content-grid">
-                <!-- Add New User Card -->
-                <div class="section-card">
-                    <div class="section-header">
-                        <h3><i class="fas fa-user-plus"></i> Add New User</h3>
-                        <p>Create a new user account</p>
-                    </div>
-                    <div class="section-body">
-                        <form method="POST" action="{{ url_for('register') }}" class="modern-form"
-                            onsubmit="return validateForm(event);">
-                            <div class="form-grid-container">
-                                <div class="form-section">
-                                    <h3 class="section-title">Account Information</h3>
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="first_name">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                                <circle cx="12" cy="7" r="4"></circle>
-                                            </svg>
-                                            First Name
-                                        </label>
-                                        <input type="text" id="first_name" name="first_name"
-                                            class="form-control modern-input" required minlength="2" maxlength="50"
-                                            pattern="[A-Za-z\s'-]+"
-                                            title="First name can contain letters, spaces, apostrophes, and hyphens">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="last_name">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                                <circle cx="12" cy="7" r="4"></circle>
-                                            </svg>
-                                            Last Name
-                                        </label>
-                                        <input type="text" id="last_name" name="last_name"
-                                            class="form-control modern-input" required minlength="2" maxlength="50"
-                                            pattern="[A-Za-z\s'-]+"
-                                            title="Last name can contain letters, spaces, apostrophes, and hyphens">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="username">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                                <circle cx="12" cy="7" r="4"></circle>
-                                            </svg>
-                                            Username
-                                        </label>
-                                        <input type="text" id="username" name="username"
-                                            class="form-control modern-input" required minlength="3" maxlength="50"
-                                            pattern="[a-zA-Z0-9_]+"
-                                            title="Username can only contain letters, numbers, and underscores">
-                                        <span class="form-hint">3-50 characters, letters, numbers and underscores
-                                            only</span>
-                                        <div id="username-availability" class="availability-msg" aria-live="polite">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="employee_id">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                                <path d="M8 7h8M8 11h8M8 15h5"></path>
-                                            </svg>
-                                            Employee ID
-                                        </label>
-                                        <input type="text" id="employee_id" name="employee_id"
-                                            class="form-control modern-input" required maxlength="20"
-                                            pattern="[A-Za-z0-9_-]+"
-                                            title="Employee ID can contain letters, numbers, hyphens and underscores">
-                                        <span class="form-hint">Unique employee identifier (e.g., E001)</span>
-                                        <div id="employee-id-availability" class="availability-msg" aria-live="polite">
-                                        </div>
-                                    </div>
-                                    <!-- Email field removed in revert -->
-                                </div>
-
-                                <div class="form-section">
-                                    <h3 class="section-title">Security</h3>
-                                    <div class="form-group">
-                                        <label class="form-label" for="password">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                                            </svg>
-                                            Password
-                                        </label>
-                                        <div class="password-input-container modern-input-group">
-                                            <input type="password" id="password" name="password"
-                                                class="form-control modern-input" required minlength="8"
-                                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-                                                title="Password must contain at least 8 characters, including uppercase, lowercase, number and special character">
-                                            <button type="button" class="toggle-password modern-button"
-                                                onclick="togglePasswordVisibility('password')">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                                    <circle cx="12" cy="12" r="3"></circle>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <span class="form-hint">Minimum 8 characters with uppercase, lowercase, number
-                                            and
-                                            special character</span>
-                                        <div id="password-strength" class="password-strength modern-strength-indicator">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="confirm_password">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                            </svg>
-                                            Confirm Password
-                                        </label>
-                                        <div class="password-input-container modern-input-group">
-                                            <input type="password" id="confirm_password" name="confirm_password"
-                                                class="form-control modern-input" required>
-                                            <button type="button" class="toggle-password modern-button"
-                                                onclick="togglePasswordVisibility('confirm_password')">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                                    <circle cx="12" cy="12" r="3"></circle>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <span class="password-match-message" id="password-match-message"></span>
-                                    </div>
-                                </div>
-
-                                <div class="form-section">
-                                    <h3 class="section-title">Role & Department</h3>
-                                    <div class="form-group">
-                                        <label class="form-label" for="role">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                                <circle cx="9" cy="7" r="4"></circle>
-                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                            </svg>
-                                            User Role
-                                        </label>
-                                        <select id="role" name="is_hr" class="form-control modern-select" required>
-                                            <option value="">Select Role</option>
-                                            <option value="0">Employee</option>
-                                            <option value="1">HR Staff</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="department">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                                            </svg>
-                                            Department
-                                        </label>
-                                        <select id="department" name="department" class="form-control modern-select"
-                                            required>
-                                            <option value="Select Department">Select Department</option>
-                                            <option value="IT Department">IT Department</option>
-                                            <option value="Finance Department">Finance Department</option>
-                                            <option value="General Manager">General Manager</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label" for="job_title">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M6 9h12M6 9a6 6 0 0 0 6 6 6 6 0 0 0 6-6"></path>
-                                            </svg>
-                                            Employee Job Title
-                                        </label>
-                                        <input type="text" id="job_title" name="job_title"
-                                            class="form-control modern-input"
-                                            placeholder="e.g., Manager, Developer, Analyst">
-                                        <span class="form-hint">Optional — job title or designation for the
-                                            employee</span>
-                                    </div>
-
-                                    <div class="form-group modern-checkbox-group">
-                                        <label class="form-label modern-checkbox-label">
-                                            <input type="checkbox" name="is_active" class="modern-checkbox" checked>
-                                            <span class="checkbox-text">Active Account</span>
-                                        </label>
-                                    </div>
-
-                                    <button type="submit" id="add-user-submit"
-                                        class="btn btn-primary modern-submit-btn">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z">
-                                            </path>
-                                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                                            <polyline points="7 3 7 8 15 8"></polyline>
-                                        </svg>
-                                        Add User
-                                    </button>
-                                </div>
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <div class="stat-label">Active Users</div>
+                            <div class="stat-value">{{ users|selectattr('is_active', 'equalto', true)|list|length }}
                             </div>
-                        </form>
+                            <div class="stat-description">Currently active</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
                     </div>
-                </div>
-                <script>
-                    function validateForm(event) {
-                        const password = document.getElementById('password');
-                        const confirmPassword = document.getElementById('confirm_password');
-                        const passwordMatchMessage = document.getElementById('password-match-message');
 
-                        if (password.value !== confirmPassword.value) {
-                            passwordMatchMessage.textContent = 'Passwords do not match';
-                            passwordMatchMessage.style.color = '#dc3545';
-                            event.preventDefault();
-                            return false;
-                        }
-                        return true;
-                    }
-
-                    function togglePasswordVisibility(inputId) {
-                        const input = document.getElementById(inputId);
-                        input.type = input.type === 'password' ? 'text' : 'password';
-                    }
-
-                    document.getElementById('password').addEventListener('input', function () {
-                        const password = this.value;
-                        const strengthDiv = document.getElementById('password-strength');
-                        const strength = calculatePasswordStrength(password);
-
-                        strengthDiv.className = 'password-strength';
-                        strengthDiv.classList.add(`strength-${strength}`);
-                        strengthDiv.textContent = `Password Strength: ${strength.charAt(0).toUpperCase() + strength.slice(1)}`;
-                    });
-
-                    function calculatePasswordStrength(password) {
-                        let strength = 0;
-                        if (password.length >= 8) strength++;
-                        if (password.match(/[a-z]+/)) strength++;
-                        if (password.match(/[A-Z]+/)) strength++;
-                        if (password.match(/[0-9]+/)) strength++;
-                        if (password.match(/[@$!%*?&]+/)) strength++;
-
-                        if (strength < 2) return 'weak';
-                        if (strength < 4) return 'medium';
-                        return 'strong';
-                    }
-
-                    document.getElementById('confirm_password').addEventListener('input', function () {
-                        const password = document.getElementById('password').value;
-                        const confirmPassword = this.value;
-                        const message = document.getElementById('password-match-message');
-
-                        if (confirmPassword === '') {
-                            message.textContent = '';
-                        } else if (password === confirmPassword) {
-                            message.textContent = 'Passwords match';
-                            message.style.color = '#28a745';
-                        } else {
-                            message.textContent = 'Passwords do not match';
-                            message.style.color = '#dc3545';
-                        }
-                    });
-                </script>
-            </div>
-
-            <script>
-                // Debounced AJAX checks for username and employee ID availability (admin-only endpoints)
-                (function () {
-                    const usernameInput = document.getElementById('username');
-                    const empInput = document.getElementById('employee_id');
-                    const usernameMsg = document.getElementById('username-availability');
-                    const empMsg = document.getElementById('employee-id-availability');
-                    const submitBtn = document.getElementById('add-user-submit');
-
-                    if (!usernameInput || !empInput || !submitBtn) return;
-
-                    let usernameAvailable = true;
-                    let empAvailable = true;
-
-                    function debounce(fn, delay) {
-                        let timer = null;
-                        return function (...args) {
-                            clearTimeout(timer);
-                            timer = setTimeout(() => fn.apply(this, args), delay);
-                        };
-                    }
-
-                    async function checkUsername() {
-                        const v = usernameInput.value.trim();
-                        if (!v) {
-                            usernameMsg.textContent = '';
-                            usernameAvailable = false;
-                            updateSubmit();
-                            return;
-                        }
-                        try {
-                            const res = await fetch(`/admin/check-username?username=${encodeURIComponent(v)}`);
-                            const data = await res.json();
-                            if (data.available) {
-                                usernameMsg.textContent = 'Username is available';
-                                usernameMsg.style.color = '#16a34a';
-                                usernameAvailable = true;
-                            } else {
-                                usernameMsg.textContent = 'Username is already taken';
-                                usernameMsg.style.color = '#dc2626';
-                                usernameAvailable = false;
-                            }
-                        } catch (err) {
-                            usernameMsg.textContent = 'Unable to check username';
-                            usernameMsg.style.color = '#f59e0b';
-                            usernameAvailable = false;
-                        }
-                        updateSubmit();
-                    }
-
-                    async function checkEmployeeId() {
-                        const v = empInput.value.trim();
-                        if (!v) {
-                            empMsg.textContent = '';
-                            empAvailable = false;
-                            updateSubmit();
-                            return;
-                        }
-                        try {
-                            const res = await fetch(`/admin/check-employee-id?employee_id=${encodeURIComponent(v)}`);
-                            const data = await res.json();
-                            if (data.available) {
-                                empMsg.textContent = 'Employee ID is available';
-                                empMsg.style.color = '#16a34a';
-                                empAvailable = true;
-                            } else {
-                                empMsg.textContent = 'Employee ID already exists';
-                                empMsg.style.color = '#dc2626';
-                                empAvailable = false;
-                            }
-                        } catch (err) {
-                            empMsg.textContent = 'Unable to check employee ID';
-                            empMsg.style.color = '#f59e0b';
-                            empAvailable = false;
-                        }
-                        updateSubmit();
-                    }
-
-                    function updateSubmit() {
-                        // Only enable when both checks are true
-                        const ok = usernameAvailable && empAvailable;
-                        submitBtn.disabled = !ok;
-                        submitBtn.style.opacity = ok ? '1' : '0.6';
-                    }
-
-                    const debouncedCheckUsername = debounce(checkUsername, 450);
-                    const debouncedCheckEmployeeId = debounce(checkEmployeeId, 450);
-
-                    usernameInput.addEventListener('input', debouncedCheckUsername);
-                    empInput.addEventListener('input', debouncedCheckEmployeeId);
-
-                    // Run an initial check if fields already have values
-                    if (usernameInput.value) debouncedCheckUsername();
-                    if (empInput.value) debouncedCheckEmployeeId();
-                })();
-                (function () {
-                    var btn = document.getElementById('mobileSidebarToggle');
-                    if (!btn) return;
-                    var sidebar = document.querySelector('.sidebar');
-                    btn.addEventListener('click', function () {
-                        if (sidebar) sidebar.classList.toggle('sidebar-hidden');
-                    });
-                })();
-            </script>
-
-
-            <!-- User Management Card -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h3><i class="fas fa-users"></i> User Management</h3>
-                    <p>Manage all users in the system</p>
-                </div>
-
-                <div class="section-body">
-                    <div class="table-responsive" style="padding:0 8px;">
-                        <table class="user-table" style="width:100%; border-collapse:separate; border-spacing:0;">
-                            <thead>
-                                <tr style="background:#f5f7fa;">
-                                    <th class="col-group-identity" style="text-align:left; padding:12px 10px;">Identity
-                                    </th>
-                                    <th class="col-group-role" style="text-align:center; padding:12px 10px;">Role</th>
-                                    <th class="col-group-taken" style="text-align:center; padding:12px 10px;">Days Taken
-                                    </th>
-                                    <th class="col-group-left" style="text-align:center; padding:12px 10px;">Days Left
-                                    </th>
-                                    <th class="col-group-status" style="text-align:center; padding:12px 10px;">Status
-                                    </th>
-                                    <th class="col-group-actions" style="text-align:center; padding:12px 10px;">Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in users %}
-                                <tr class="user-row" style="border-bottom:1px solid #e0e6ed;">
-                                    <td class="col-group-identity" style="padding:10px; vertical-align:middle;">
-                                        <div class="user-identity" style="display:flex; align-items:center; gap:12px;">
-                                            <div class="user-avatar"
-                                                style="width:32px; height:32px; background:#e0e6ed; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:16px; color:#374151;">
-                                                {{ user.name[0] }}</div>
-                                            <div class="user-details" style="display:flex; flex-direction:column;">
-                                                <span class="employee-name" style="font-weight:600; color:#2c3e50;">{{
-                                                    user.name
-                                                    }}</span>
-                                                <span class="username" style="font-size:12px; color:#7f8c8d;">{{
-                                                    user.username
-                                                    }}{% if user.department %} · {{ user.department }}{% endif %}</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="col-group-role"
-                                        style="text-align:center; vertical-align:middle; padding:10px;">
-                                        <span
-                                            class="badge {% if user.is_hr %}badge-success{% else %}badge-warning{% endif %}"
-                                            style="padding:6px 14px; border-radius:16px; font-size:13px;">{% if
-                                            user.is_hr %}HR
-                                            Staff{% else %}Employee{% endif %}</span>
-                                    </td>
-                                    <td class="col-group-taken"
-                                        style="text-align:center; vertical-align:middle; padding:10px;">
-                                        {% set _stats = (user_stats.get(user.id) if user_stats is defined else None) %}
-                                        {% if _stats %}
-                                        {{ _stats['used'] }}
-                                        {% else %}
-                                        {% set used = 0 %}
-                                        {% for l in leaves %}
-                                        {% if l.user_id == user.id and l.status == 'Approved' and l.start_date.year ==
-                                        current_year %}
-                                        {% set used = used + ((l.end_date - l.start_date).days + 1) %}
-                                        {% endif %}
-                                        {% endfor %}
-                                        {{ used }}
-                                        {% endif %}
-                                    </td>
-                                    <td class="col-group-left"
-                                        style="text-align:center; vertical-align:middle; padding:10px;">
-                                        {% set _stats = (user_stats.get(user.id) if user_stats is defined else None) %}
-                                        {% if _stats %}
-                                        {{ _stats['remaining'] }}
-                                        {% else %}
-                                        {% set used = 0 %}
-                                        {% for l in leaves %}
-                                        {% if l.user_id == user.id and l.status == 'Approved' and l.start_date.year ==
-                                        current_year %}
-                                        {% set used = used + ((l.end_date - l.start_date).days + 1) %}
-                                        {% endif %}
-                                        {% endfor %}
-                                        {% set alloc = (user.annual_leave_allocation if user.annual_leave_allocation is
-                                        not none
-                                        else 30) %}
-                                        {% set remaining = alloc - used %}
-                                        {{ remaining if remaining > 0 else 0 }}
-                                        {% endif %}
-                                    </td>
-                                    <td class="col-group-status"
-                                        style="text-align:center; vertical-align:middle; padding:10px;">
-                                        <span
-                                            class="badge {% if user.is_active %}badge-success{% else %}badge-danger{% endif %}"
-                                            style="padding:6px 14px; border-radius:16px; font-size:13px;">{% if
-                                            user.is_active
-                                            %}Active{% else %}Inactive{% endif %}</span>
-                                    </td>
-                                    <td class="col-group-actions"
-                                        style="text-align:center; vertical-align:middle; padding:10px;">
-                                        <div class="action-buttons"
-                                            style="display:flex; gap:6px; justify-content:center;">
-                                            <form method="POST"
-                                                action="{{ url_for('toggle_user_role', user_id=user.id) }}"
-                                                class="action-form">
-                                                <button type="submit" class="btn btn-sm btn-warning"
-                                                    title="Toggle Role">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke="#fbbf24" width="16" height="16">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                                    </svg>
-                                                    <span>Role</span>
-                                                </button>
-                                            </form>
-                                            <form method="POST"
-                                                action="{{ url_for('toggle_user_status', user_id=user.id) }}"
-                                                class="action-form">
-                                                <button type="submit" class="btn btn-sm btn-primary"
-                                                    title="Toggle Status">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke="#60a5fa" width="16" height="16">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                    <span>Status</span>
-                                                </button>
-                                            </form>
-                                            <form method="POST"
-                                                action="{{ url_for('reset_password', user_id=user.id) }}"
-                                                class="action-form">
-                                                <button type="submit" class="btn btn-sm btn-info"
-                                                    title="Reset Password">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke="#38bdf8" width="16" height="16">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                                                    </svg>
-                                                    <span>Reset</span>
-                                                </button>
-                                            </form>
-                                            <div class="action-form">
-                                                <button type="button" class="btn btn-sm btn-secondary btn-edit"
-                                                    title="Edit User" data-user-id="{{ user.id }}"
-                                                    data-first-name="{{ user.first_name or '' }}"
-                                                    data-last-name="{{ user.last_name or '' }}"
-                                                    data-employee-id="{{ user.employee_id or '' }}"
-                                                    data-department="{{ user.department or '' }}"
-                                                    data-job-title="{{ user.job_title or '' }}"
-                                                    data-is-hr="{{ 1 if user.is_hr else 0 }}"
-                                                    data-is-active="{{ 1 if user.is_active else 0 }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke="#6b7280" width="16" height="16">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M11 5h2m3 0h2m-9 0H7m10 0a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h10z" />
-                                                    </svg>
-                                                    <span>Edit</span>
-                                                </button>
-                                            </div>
-                                            <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}"
-                                                class="action-form"
-                                                onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
-                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete User">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke="#ef4444" width="16" height="16">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                    <span>Delete</span>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <div class="stat-label">HR Staff</div>
+                            <div class="stat-value">{{ users|selectattr('is_hr', 'equalto', true)|list|length }}</div>
+                            <div class="stat-description">HR personnel</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Leave Requests Card -->
-                <div class="section-card">
-                    <div class="section-header">
-                        <h3><i class="fas fa-calendar-check"></i> Leave Requests</h3>
-                        <p>Review and manage leave requests from employees</p>
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <div class="stat-label">Total Employees</div>
+                            <div class="stat-value">{{ admin_total_employees if admin_total_employees is not none else
+                                users|length
+                                }}</div>
+                            <div class="stat-description">Active employees</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
                     </div>
-                    <div class="section-body">
-                        <div class="table-container">
-                            <div class="filters-bar">
-                                <div>
-                                    <label class="form-label" for="filterEmployee">Employee</label>
-                                    <input type="text" id="filterEmployee" class="form-control modern-input"
-                                        placeholder="Search employee">
-                                </div>
-                                <div>
-                                    <label class="form-label" for="filterType">Leave Type</label>
-                                    <select id="filterType" class="form-control modern-select">
-                                        <option value="">All Types</option>
-                                        {% for g in leaves|groupby('leave_type') %}
-                                        <option value="{{ g.grouper }}">{{ g.grouper }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="form-label" for="filterStart">Start From</label>
-                                    <input type="date" id="filterStart" class="form-control modern-input">
-                                </div>
-                                <div>
-                                    <label class="form-label" for="filterEnd">End Until</label>
-                                    <input type="date" id="filterEnd" class="form-control modern-input">
-                                </div>
-                                <div>
-                                    <label class="form-label" for="filterReason">Reason</label>
-                                    <input type="text" id="filterReason" class="form-control modern-input"
-                                        placeholder="Search reason">
-                                </div>
-                                <div>
-                                    <label class="form-label" for="filterStatus">Status</label>
-                                    <select id="filterStatus" class="form-control modern-select">
-                                        <option value="">All Statuses</option>
-                                        <option value="Approved">Approved</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Rejected">Rejected</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <button type="button" class="btn btn-secondary" id="filterReset">Reset
-                                        Filters</button>
-                                </div>
-                            </div>
-                            <table class="leave-table">
-                                <thead>
-                                    <tr>
-                                        <th>Employee</th>
-                                        <th>Leave Type</th>
-                                        <th>Date Range</th>
-                                        <th>Documents</th>
-                                        <th>Reason</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% if leaves %}
-                                    {% for leave in leaves %}
-                                    <tr class="leave-row" data-employee="{{ leave.employee_name|lower }}"
-                                        data-type="{{ leave.leave_type|lower }}"
-                                        data-start="{{ leave.start_date.strftime('%Y-%m-%d') }}"
-                                        data-end="{{ leave.end_date.strftime('%Y-%m-%d') }}"
-                                        data-status="{{ leave.status|lower }}" data-reason="{{ leave.reason|lower }}">
-                                        <td class="user-identity">
-                                            <div class="user-avatar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                </svg>
-                                            </div>
-                                            <div class="user-details">
-                                                <span class="username">{{ leave.employee_name }}</span>
-                                                <span class="department">ID: {{ leave.employee_id }}</span>
-                                            </div>
-                                        </td>
-                                        <td>{{ leave.leave_type }}</td>
-                                        <td class="date-column">
-                                            {{ leave.start_date.strftime('%Y-%m-%d') }} <br>
-                                            <small>to {{ leave.end_date.strftime('%Y-%m-%d') }}</small>
-                                        </td>
-                                        <td>
-                                            {% if leave.documents %}
-                                            <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                                                {% for doc in leave.documents %}
-                                                <a href="{{ url_for('static', filename='uploads/' + doc.filename) }}"
-                                                    target="_blank" title="{{ doc.filename }}"
-                                                    style="color:var(--primary-blue);">
-                                                    <i class="fas fa-file-alt"></i>
-                                                </a>
-                                                {% endfor %}
-                                            </div>
-                                            {% else %}
-                                            <span style="color:var(--text-secondary); font-size:12px;">-</span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="reason-column">{{ leave.reason[:50] }}{% if leave.reason|length > 50
-                                            %}...{%
-                                            endif %}</td>
-                                        <td>
-                                            <span
-                                                class="badge {% if leave.status == 'Approved' %}badge-success{% elif leave.status == 'Rejected' %}badge-danger{% else %}badge-warning{% endif %}">
-                                                {{ leave.status }}
-                                            </span>
-                                        </td>
-                                        <td class="actions">
-                                            {% if leave.status == 'Pending' %}
-                                            <form method="POST"
-                                                action="{{ url_for('approve_leave', leave_id=leave.id) }}"
-                                                class="action-form" style="display: inline;">
-                                                <button type="submit" class="btn btn-sm btn-success"
-                                                    title="Approve Leave">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke="#10b981" width="16" height="16">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                    <span>Approve</span>
-                                                </button>
-                                            </form>
-                                            <div class="action-form" style="display: inline;">
-                                                <button type="button" class="btn btn-sm btn-danger btn-reject"
-                                                    data-leave-id="{{ leave.id }}" title="Reject Leave">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke="#ef4444" width="16" height="16">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                    <span>Reject</span>
-                                                </button>
-                                            </div>
-                                            {% else %}
-                                            <span class="text-muted">No actions available</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                    {% else %}
-                                    <tr>
-                                        <td colspan="6" style="text-align: center; padding: 2rem; color: #6c757d;">
-                                            No leave requests found
-                                        </td>
-                                    </tr>
-                                    {% endif %}
-                                </tbody>
-                            </table>
-                            <script>
-                                (function () {
-                                    const fEmployee = document.getElementById('filterEmployee');
-                                    const fType = document.getElementById('filterType');
-                                    const fStart = document.getElementById('filterStart');
-                                    const fEnd = document.getElementById('filterEnd');
-                                    const fReason = document.getElementById('filterReason');
-                                    const fStatus = document.getElementById('filterStatus');
-                                    const btnReset = document.getElementById('filterReset');
-                                    const rows = Array.from(document.querySelectorAll('.leave-row'));
 
-                                    function applyFilters() {
-                                        const emp = (fEmployee.value || '').toLowerCase();
-                                        const type = (fType.value || '').toLowerCase();
-                                        const status = (fStatus.value || '').toLowerCase();
-                                        const reason = (fReason.value || '').toLowerCase();
-                                        const startVal = fStart.value ? new Date(fStart.value) : null;
-                                        const endVal = fEnd.value ? new Date(fEnd.value) : null;
-                                        rows.forEach(row => {
-                                            const rEmp = row.getAttribute('data-employee') || '';
-                                            const rType = row.getAttribute('data-type') || '';
-                                            const rStatus = row.getAttribute('data-status') || '';
-                                            const rReason = row.getAttribute('data-reason') || '';
-                                            const rStart = new Date(row.getAttribute('data-start'));
-                                            const rEnd = new Date(row.getAttribute('data-end'));
-                                            let show = true;
-                                            if (emp && !rEmp.includes(emp)) show = false;
-                                            if (type && rType !== type) show = false;
-                                            if (status && rStatus !== status) show = false;
-                                            if (reason && !rReason.includes(reason)) show = false;
-                                            if (startVal && rEnd < startVal) show = false;
-                                            if (endVal && rStart > endVal) show = false;
-                                            row.style.display = show ? '' : 'none';
-                                        });
-                                    }
-                                    function attach(el, evt) { el.addEventListener(evt, applyFilters); }
-                                    attach(fEmployee, 'input');
-                                    attach(fType, 'change');
-                                    attach(fStart, 'change');
-                                    attach(fEnd, 'change');
-                                    attach(fReason, 'input');
-                                    attach(fStatus, 'change');
-                                    btnReset.addEventListener('click', function () {
-                                        fEmployee.value = '';
-                                        fType.value = '';
-                                        fStart.value = '';
-                                        fEnd.value = '';
-                                        fReason.value = '';
-                                        fStatus.value = '';
-                                        applyFilters();
-                                    });
-                                    applyFilters();
-                                })();
-                            </script>
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <div class="stat-label">System Leave Balance</div>
+                            <div class="stat-value">{{ admin_total_leave_balance if admin_total_leave_balance is not
+                                none
+                                else '-'
+                                }}</div>
+                            <div class="stat-description">Total days remaining (30 per employee)</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <div class="stat-label">Used This Year</div>
+                            <div class="stat-value">{{ admin_used_leaves_this_year if admin_used_leaves_this_year is not
+                                none else
+                                '-' }}</div>
+                            <div class="stat-description">Approved days used this year</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-content">
+                            <div class="stat-label">Leave Requests</div>
+                            <div class="stat-value">{{ total_leaves }}</div>
+                            <div class="stat-description green">{{ approved_leaves }} approved</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
                         </div>
                     </div>
                 </div>
-</body>
+
+                <!-- Charts Grid -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Leave Status Distribution</h3>
+                        </div>
+                        <div style="height: 250px; position: relative;">
+                            <canvas id="leaveStatusChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Leaves by Type</h3>
+                        </div>
+                        <div style="height: 250px; position: relative;">
+                            <canvas id="leaveTypeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Grid -->
+                <div class="content-grid">
+                    <!-- Add New User Card -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h3><i class="fas fa-user-plus"></i> Add New User</h3>
+                            <p>Create a new user account</p>
+                        </div>
+                        <div class="section-body">
+                            <form method="POST" action="{{ url_for('register') }}" class="modern-form"
+                                onsubmit="return validateForm(event);">
+                                <div class="form-grid-container">
+                                    <div class="form-section">
+                                        <h3 class="section-title">Account Information</h3>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="first_name">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="12" cy="7" r="4"></circle>
+                                                </svg>
+                                                First Name
+                                            </label>
+                                            <input type="text" id="first_name" name="first_name"
+                                                class="form-control modern-input" required minlength="2" maxlength="50"
+                                                pattern="[A-Za-z\s'-]+"
+                                                title="First name can contain letters, spaces, apostrophes, and hyphens">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="last_name">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="12" cy="7" r="4"></circle>
+                                                </svg>
+                                                Last Name
+                                            </label>
+                                            <input type="text" id="last_name" name="last_name"
+                                                class="form-control modern-input" required minlength="2" maxlength="50"
+                                                pattern="[A-Za-z\s'-]+"
+                                                title="Last name can contain letters, spaces, apostrophes, and hyphens">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="username">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="12" cy="7" r="4"></circle>
+                                                </svg>
+                                                Username
+                                            </label>
+                                            <input type="text" id="username" name="username"
+                                                class="form-control modern-input" required minlength="3" maxlength="50"
+                                                pattern="[a-zA-Z0-9_]+"
+                                                title="Username can only contain letters, numbers, and underscores">
+                                            <span class="form-hint">3-50 characters, letters, numbers and underscores
+                                                only</span>
+                                            <div id="username-availability" class="availability-msg" aria-live="polite">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="employee_id">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                    <path d="M8 7h8M8 11h8M8 15h5"></path>
+                                                </svg>
+                                                Employee ID
+                                            </label>
+                                            <input type="text" id="employee_id" name="employee_id"
+                                                class="form-control modern-input" required maxlength="20"
+                                                pattern="[A-Za-z0-9_-]+"
+                                                title="Employee ID can contain letters, numbers, hyphens and underscores">
+                                            <span class="form-hint">Unique employee identifier (e.g., E001)</span>
+                                            <div id="employee-id-availability" class="availability-msg"
+                                                aria-live="polite">
+                                            </div>
+                                        </div>
+                                        <!-- Email field removed in revert -->
+                                    </div>
+
+                                    <div class="form-section">
+                                        <h3 class="section-title">Security</h3>
+                                        <div class="form-group">
+                                            <label class="form-label" for="password">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                                </svg>
+                                                Password
+                                            </label>
+                                            <div class="password-input-container modern-input-group">
+                                                <input type="password" id="password" name="password"
+                                                    class="form-control modern-input" required minlength="8"
+                                                    pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                                                    title="Password must contain at least 8 characters, including uppercase, lowercase, number and special character">
+                                                <button type="button" class="toggle-password modern-button"
+                                                    onclick="togglePasswordVisibility('password')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                        <circle cx="12" cy="12" r="3"></circle>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <span class="form-hint">Minimum 8 characters with uppercase, lowercase,
+                                                number
+                                                and
+                                                special character</span>
+                                            <div id="password-strength"
+                                                class="password-strength modern-strength-indicator">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="confirm_password">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                                </svg>
+                                                Confirm Password
+                                            </label>
+                                            <div class="password-input-container modern-input-group">
+                                                <input type="password" id="confirm_password" name="confirm_password"
+                                                    class="form-control modern-input" required>
+                                                <button type="button" class="toggle-password modern-button"
+                                                    onclick="togglePasswordVisibility('confirm_password')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                        <circle cx="12" cy="12" r="3"></circle>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <span class="password-match-message" id="password-match-message"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-section">
+                                        <h3 class="section-title">Role & Department</h3>
+                                        <div class="form-group">
+                                            <label class="form-label" for="role">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="9" cy="7" r="4"></circle>
+                                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                                </svg>
+                                                User Role
+                                            </label>
+                                            <select id="role" name="is_hr" class="form-control modern-select" required>
+                                                <option value="">Select Role</option>
+                                                <option value="0">Employee</option>
+                                                <option value="1">HR Staff</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="department">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                                </svg>
+                                                Department
+                                            </label>
+                                            <select id="department" name="department" class="form-control modern-select"
+                                                required>
+                                                <option value="Select Department">Select Department</option>
+                                                <option value="IT Department">IT Department</option>
+                                                <option value="Finance Department">Finance Department</option>
+                                                <option value="General Manager">General Manager</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label" for="job_title">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M6 9h12M6 9a6 6 0 0 0 6 6 6 6 0 0 0 6-6"></path>
+                                                </svg>
+                                                Employee Job Title
+                                            </label>
+                                            <input type="text" id="job_title" name="job_title"
+                                                class="form-control modern-input"
+                                                placeholder="e.g., Manager, Developer, Analyst">
+                                            <span class="form-hint">Optional — job title or designation for the
+                                                employee</span>
+                                        </div>
+
+                                        <div class="form-group modern-checkbox-group">
+                                            <label class="form-label modern-checkbox-label">
+                                                <input type="checkbox" name="is_active" class="modern-checkbox" checked>
+                                                <span class="checkbox-text">Active Account</span>
+                                            </label>
+                                        </div>
+
+                                        <button type="submit" id="add-user-submit"
+                                            class="btn btn-primary modern-submit-btn">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path
+                                                    d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z">
+                                                </path>
+                                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                                <polyline points="7 3 7 8 15 8"></polyline>
+                                            </svg>
+                                            Add User
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <script>
+                        function validateForm(event) {
+                            const password = document.getElementById('password');
+                            const confirmPassword = document.getElementById('confirm_password');
+                            const passwordMatchMessage = document.getElementById('password-match-message');
+
+                            if (password.value !== confirmPassword.value) {
+                                passwordMatchMessage.textContent = 'Passwords do not match';
+                                passwordMatchMessage.style.color = '#dc3545';
+                                event.preventDefault();
+                                return false;
+                            }
+                            return true;
+                        }
+
+                        function togglePasswordVisibility(inputId) {
+                            const input = document.getElementById(inputId);
+                            input.type = input.type === 'password' ? 'text' : 'password';
+                        }
+
+                        document.getElementById('password').addEventListener('input', function () {
+                            const password = this.value;
+                            const strengthDiv = document.getElementById('password-strength');
+                            const strength = calculatePasswordStrength(password);
+
+                            strengthDiv.className = 'password-strength';
+                            strengthDiv.classList.add(`strength-${strength}`);
+                            strengthDiv.textContent = `Password Strength: ${strength.charAt(0).toUpperCase() + strength.slice(1)}`;
+                        });
+
+                        function calculatePasswordStrength(password) {
+                            let strength = 0;
+                            if (password.length >= 8) strength++;
+                            if (password.match(/[a-z]+/)) strength++;
+                            if (password.match(/[A-Z]+/)) strength++;
+                            if (password.match(/[0-9]+/)) strength++;
+                            if (password.match(/[@$!%*?&]+/)) strength++;
+
+                            if (strength < 2) return 'weak';
+                            if (strength < 4) return 'medium';
+                            return 'strong';
+                        }
+
+                        document.getElementById('confirm_password').addEventListener('input', function () {
+                            const password = document.getElementById('password').value;
+                            const confirmPassword = this.value;
+                            const message = document.getElementById('password-match-message');
+
+                            if (confirmPassword === '') {
+                                message.textContent = '';
+                            } else if (password === confirmPassword) {
+                                message.textContent = 'Passwords match';
+                                message.style.color = '#28a745';
+                            } else {
+                                message.textContent = 'Passwords do not match';
+                                message.style.color = '#dc3545';
+                            }
+                        });
+                    </script>
+                </div>
+
+                <script>
+                    // Debounced AJAX checks for username and employee ID availability (admin-only endpoints)
+                    (function () {
+                        const usernameInput = document.getElementById('username');
+                        const empInput = document.getElementById('employee_id');
+                        const usernameMsg = document.getElementById('username-availability');
+                        const empMsg = document.getElementById('employee-id-availability');
+                        const submitBtn = document.getElementById('add-user-submit');
+
+                        if (!usernameInput || !empInput || !submitBtn) return;
+
+                        let usernameAvailable = true;
+                        let empAvailable = true;
+
+                        function debounce(fn, delay) {
+                            let timer = null;
+                            return function (...args) {
+                                clearTimeout(timer);
+                                timer = setTimeout(() => fn.apply(this, args), delay);
+                            };
+                        }
+
+                        async function checkUsername() {
+                            const v = usernameInput.value.trim();
+                            if (!v) {
+                                usernameMsg.textContent = '';
+                                usernameAvailable = false;
+                                updateSubmit();
+                                return;
+                            }
+                            try {
+                                const res = await fetch(`/admin/check-username?username=${encodeURIComponent(v)}`);
+                                const data = await res.json();
+                                if (data.available) {
+                                    usernameMsg.textContent = 'Username is available';
+                                    usernameMsg.style.color = '#16a34a';
+                                    usernameAvailable = true;
+                                } else {
+                                    usernameMsg.textContent = 'Username is already taken';
+                                    usernameMsg.style.color = '#dc2626';
+                                    usernameAvailable = false;
+                                }
+                            } catch (err) {
+                                usernameMsg.textContent = 'Unable to check username';
+                                usernameMsg.style.color = '#f59e0b';
+                                usernameAvailable = false;
+                            }
+                            updateSubmit();
+                        }
+
+                        async function checkEmployeeId() {
+                            const v = empInput.value.trim();
+                            if (!v) {
+                                empMsg.textContent = '';
+                                empAvailable = false;
+                                updateSubmit();
+                                return;
+                            }
+                            try {
+                                const res = await fetch(`/admin/check-employee-id?employee_id=${encodeURIComponent(v)}`);
+                                const data = await res.json();
+                                if (data.available) {
+                                    empMsg.textContent = 'Employee ID is available';
+                                    empMsg.style.color = '#16a34a';
+                                    empAvailable = true;
+                                } else {
+                                    empMsg.textContent = 'Employee ID already exists';
+                                    empMsg.style.color = '#dc2626';
+                                    empAvailable = false;
+                                }
+                            } catch (err) {
+                                empMsg.textContent = 'Unable to check employee ID';
+                                empMsg.style.color = '#f59e0b';
+                                empAvailable = false;
+                            }
+                            updateSubmit();
+                        }
+
+                        function updateSubmit() {
+                            // Only enable when both checks are true
+                            const ok = usernameAvailable && empAvailable;
+                            submitBtn.disabled = !ok;
+                            submitBtn.style.opacity = ok ? '1' : '0.6';
+                        }
+
+                        const debouncedCheckUsername = debounce(checkUsername, 450);
+                        const debouncedCheckEmployeeId = debounce(checkEmployeeId, 450);
+
+                        usernameInput.addEventListener('input', debouncedCheckUsername);
+                        empInput.addEventListener('input', debouncedCheckEmployeeId);
+
+                        // Run an initial check if fields already have values
+                        if (usernameInput.value) debouncedCheckUsername();
+                        if (empInput.value) debouncedCheckEmployeeId();
+                    })();
+                    (function () {
+                        var btn = document.getElementById('mobileSidebarToggle');
+                        if (!btn) return;
+                        var sidebar = document.querySelector('.sidebar');
+                        btn.addEventListener('click', function () {
+                            if (sidebar) sidebar.classList.toggle('sidebar-hidden');
+                        });
+                    })();
+                </script>
+
+
+                <!-- User Management Card -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-users"></i> User Management</h3>
+                        <p>Manage all users in the system</p>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="table-responsive" style="padding:0 8px;">
+                            <table class="user-table" style="width:100%; border-collapse:separate; border-spacing:0;">
+                                <thead>
+                                    <tr style="background:#f5f7fa;">
+                                        <th class="col-group-identity" style="text-align:left; padding:12px 10px;">
+                                            Identity
+                                        </th>
+                                        <th class="col-group-role" style="text-align:center; padding:12px 10px;">Role
+                                        </th>
+                                        <th class="col-group-taken" style="text-align:center; padding:12px 10px;">Days
+                                            Taken
+                                        </th>
+                                        <th class="col-group-left" style="text-align:center; padding:12px 10px;">Days
+                                            Left
+                                        </th>
+                                        <th class="col-group-status" style="text-align:center; padding:12px 10px;">
+                                            Status
+                                        </th>
+                                        <th class="col-group-actions" style="text-align:center; padding:12px 10px;">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr class="user-row" style="border-bottom:1px solid #e0e6ed;">
+                                        <td class="col-group-identity" style="padding:10px; vertical-align:middle;">
+                                            <div class="user-identity"
+                                                style="display:flex; align-items:center; gap:12px;">
+                                                <div class="user-avatar"
+                                                    style="width:32px; height:32px; background:#e0e6ed; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:16px; color:#374151;">
+                                                    {{ user.name[0] }}</div>
+                                                <div class="user-details" style="display:flex; flex-direction:column;">
+                                                    <span class="employee-name"
+                                                        style="font-weight:600; color:#2c3e50;">{{
+                                                        user.name
+                                                        }}</span>
+                                                    <span class="username" style="font-size:12px; color:#7f8c8d;">{{
+                                                        user.username
+                                                        }}{% if user.department %} · {{ user.department }}{% endif
+                                                        %}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="col-group-role"
+                                            style="text-align:center; vertical-align:middle; padding:10px;">
+                                            <span
+                                                class="badge {% if user.is_hr %}badge-success{% else %}badge-warning{% endif %}"
+                                                style="padding:6px 14px; border-radius:16px; font-size:13px;">{% if
+                                                user.is_hr %}HR
+                                                Staff{% else %}Employee{% endif %}</span>
+                                        </td>
+                                        <td class="col-group-taken"
+                                            style="text-align:center; vertical-align:middle; padding:10px;">
+                                            {% set _stats = (user_stats.get(user.id) if user_stats is defined else None)
+                                            %}
+                                            {% if _stats %}
+                                            {{ _stats['used'] }}
+                                            {% else %}
+                                            {% set used = 0 %}
+                                            {% for l in leaves %}
+                                            {% if l.user_id == user.id and l.status == 'Approved' and l.start_date.year
+                                            ==
+                                            current_year %}
+                                            {% set used = used + ((l.end_date - l.start_date).days + 1) %}
+                                            {% endif %}
+                                            {% endfor %}
+                                            {{ used }}
+                                            {% endif %}
+                                        </td>
+                                        <td class="col-group-left"
+                                            style="text-align:center; vertical-align:middle; padding:10px;">
+                                            {% set _stats = (user_stats.get(user.id) if user_stats is defined else None)
+                                            %}
+                                            {% if _stats %}
+                                            {{ _stats['remaining'] }}
+                                            {% else %}
+                                            {% set used = 0 %}
+                                            {% for l in leaves %}
+                                            {% if l.user_id == user.id and l.status == 'Approved' and l.start_date.year
+                                            ==
+                                            current_year %}
+                                            {% set used = used + ((l.end_date - l.start_date).days + 1) %}
+                                            {% endif %}
+                                            {% endfor %}
+                                            {% set alloc = (user.annual_leave_allocation if user.annual_leave_allocation
+                                            is
+                                            not none
+                                            else 30) %}
+                                            {% set remaining = alloc - used %}
+                                            {{ remaining if remaining > 0 else 0 }}
+                                            {% endif %}
+                                        </td>
+                                        <td class="col-group-status"
+                                            style="text-align:center; vertical-align:middle; padding:10px;">
+                                            <span
+                                                class="badge {% if user.is_active %}badge-success{% else %}badge-danger{% endif %}"
+                                                style="padding:6px 14px; border-radius:16px; font-size:13px;">{% if
+                                                user.is_active
+                                                %}Active{% else %}Inactive{% endif %}</span>
+                                        </td>
+                                        <td class="col-group-actions"
+                                            style="text-align:center; vertical-align:middle; padding:10px;">
+                                            <div class="action-buttons"
+                                                style="display:flex; gap:6px; justify-content:center;">
+                                                <form method="POST"
+                                                    action="{{ url_for('toggle_user_role', user_id=user.id) }}"
+                                                    class="action-form">
+                                                    <button type="submit" class="btn btn-sm btn-warning"
+                                                        title="Toggle Role">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                            viewBox="0 0 24 24" stroke="#fbbf24" width="16" height="16">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                                        </svg>
+                                                        <span>Role</span>
+                                                    </button>
+                                                </form>
+                                                <form method="POST"
+                                                    action="{{ url_for('toggle_user_status', user_id=user.id) }}"
+                                                    class="action-form">
+                                                    <button type="submit" class="btn btn-sm btn-primary"
+                                                        title="Toggle Status">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                            viewBox="0 0 24 24" stroke="#60a5fa" width="16" height="16">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        <span>Status</span>
+                                                    </button>
+                                                </form>
+                                                <form method="POST"
+                                                    action="{{ url_for('reset_password', user_id=user.id) }}"
+                                                    class="action-form">
+                                                    <button type="submit" class="btn btn-sm btn-info"
+                                                        title="Reset Password">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                            viewBox="0 0 24 24" stroke="#38bdf8" width="16" height="16">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                                        </svg>
+                                                        <span>Reset</span>
+                                                    </button>
+                                                </form>
+                                                <div class="action-form">
+                                                    <button type="button" class="btn btn-sm btn-secondary btn-edit"
+                                                        title="Edit User" data-user-id="{{ user.id }}"
+                                                        data-first-name="{{ user.first_name or '' }}"
+                                                        data-last-name="{{ user.last_name or '' }}"
+                                                        data-employee-id="{{ user.employee_id or '' }}"
+                                                        data-department="{{ user.department or '' }}"
+                                                        data-job-title="{{ user.job_title or '' }}"
+                                                        data-is-hr="{{ 1 if user.is_hr else 0 }}"
+                                                        data-is-active="{{ 1 if user.is_active else 0 }}">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                            viewBox="0 0 24 24" stroke="#6b7280" width="16" height="16">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M11 5h2m3 0h2m-9 0H7m10 0a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h10z" />
+                                                        </svg>
+                                                        <span>Edit</span>
+                                                    </button>
+                                                </div>
+                                                <form method="POST"
+                                                    action="{{ url_for('delete_user', user_id=user.id) }}"
+                                                    class="action-form"
+                                                    onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                                    <button type="submit" class="btn btn-sm btn-danger"
+                                                        title="Delete User">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                            viewBox="0 0 24 24" stroke="#ef4444" width="16" height="16">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                        <span>Delete</span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Leave Requests Card -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h3><i class="fas fa-calendar-check"></i> Leave Requests</h3>
+                            <p>Review and manage leave requests from employees</p>
+                        </div>
+                        <div class="section-body">
+                            <div class="table-container">
+                                <div class="filters-bar">
+                                    <div>
+                                        <label class="form-label" for="filterEmployee">Employee</label>
+                                        <input type="text" id="filterEmployee" class="form-control modern-input"
+                                            placeholder="Search employee">
+                                    </div>
+                                    <div>
+                                        <label class="form-label" for="filterType">Leave Type</label>
+                                        <select id="filterType" class="form-control modern-select">
+                                            <option value="">All Types</option>
+                                            {% for g in leaves|groupby('leave_type') %}
+                                            <option value="{{ g.grouper }}">{{ g.grouper }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label" for="filterStart">Start From</label>
+                                        <input type="date" id="filterStart" class="form-control modern-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label" for="filterEnd">End Until</label>
+                                        <input type="date" id="filterEnd" class="form-control modern-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label" for="filterReason">Reason</label>
+                                        <input type="text" id="filterReason" class="form-control modern-input"
+                                            placeholder="Search reason">
+                                    </div>
+                                    <div>
+                                        <label class="form-label" for="filterStatus">Status</label>
+                                        <select id="filterStatus" class="form-control modern-select">
+                                            <option value="">All Statuses</option>
+                                            <option value="Approved">Approved</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Rejected">Rejected</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-secondary" id="filterReset">Reset
+                                            Filters</button>
+                                    </div>
+                                </div>
+                                <table class="leave-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Employee</th>
+                                            <th>Leave Type</th>
+                                            <th>Date Range</th>
+                                            <th>Documents</th>
+                                            <th>Reason</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if leaves %}
+                                        {% for leave in leaves %}
+                                        <tr class="leave-row" data-employee="{{ leave.employee_name|lower }}"
+                                            data-type="{{ leave.leave_type|lower }}"
+                                            data-start="{{ leave.start_date.strftime('%Y-%m-%d') }}"
+                                            data-end="{{ leave.end_date.strftime('%Y-%m-%d') }}"
+                                            data-status="{{ leave.status|lower }}"
+                                            data-reason="{{ leave.reason|lower }}">
+                                            <td class="user-identity">
+                                                <div class="user-avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                    </svg>
+                                                </div>
+                                                <div class="user-details">
+                                                    <span class="username">{{ leave.employee_name }}</span>
+                                                    <span class="department">ID: {{ leave.employee_id }}</span>
+                                                </div>
+                                            </td>
+                                            <td>{{ leave.leave_type }}</td>
+                                            <td class="date-column">
+                                                {{ leave.start_date.strftime('%Y-%m-%d') }} <br>
+                                                <small>to {{ leave.end_date.strftime('%Y-%m-%d') }}</small>
+                                            </td>
+                                            <td>
+                                                {% if leave.documents %}
+                                                <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                                                    {% for doc in leave.documents %}
+                                                    <a href="{{ url_for('static', filename='uploads/' + doc.filename) }}"
+                                                        target="_blank" title="{{ doc.filename }}"
+                                                        style="color:var(--primary-blue);">
+                                                        <i class="fas fa-file-alt"></i>
+                                                    </a>
+                                                    {% endfor %}
+                                                </div>
+                                                {% else %}
+                                                <span style="color:var(--text-secondary); font-size:12px;">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="reason-column">{{ leave.reason[:50] }}{% if leave.reason|length >
+                                                50
+                                                %}...{%
+                                                endif %}</td>
+                                            <td>
+                                                <span
+                                                    class="badge {% if leave.status == 'Approved' %}badge-success{% elif leave.status == 'Rejected' %}badge-danger{% else %}badge-warning{% endif %}">
+                                                    {{ leave.status }}
+                                                </span>
+                                            </td>
+                                            <td class="actions">
+                                                {% if leave.status == 'Pending' %}
+                                                <form method="POST"
+                                                    action="{{ url_for('approve_leave', leave_id=leave.id) }}"
+                                                    class="action-form" style="display: inline;">
+                                                    <button type="submit" class="btn btn-sm btn-success"
+                                                        title="Approve Leave">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                            viewBox="0 0 24 24" stroke="#10b981" width="16" height="16">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        <span>Approve</span>
+                                                    </button>
+                                                </form>
+                                                <div class="action-form" style="display: inline;">
+                                                    <button type="button" class="btn btn-sm btn-danger btn-reject"
+                                                        data-leave-id="{{ leave.id }}" title="Reject Leave">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                            viewBox="0 0 24 24" stroke="#ef4444" width="16" height="16">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                        <span>Reject</span>
+                                                    </button>
+                                                </div>
+                                                {% else %}
+                                                <span class="text-muted">No actions available</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="6" style="text-align: center; padding: 2rem; color: #6c757d;">
+                                                No leave requests found
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                                <script>
+                                    (function () {
+                                        const fEmployee = document.getElementById('filterEmployee');
+                                        const fType = document.getElementById('filterType');
+                                        const fStart = document.getElementById('filterStart');
+                                        const fEnd = document.getElementById('filterEnd');
+                                        const fReason = document.getElementById('filterReason');
+                                        const fStatus = document.getElementById('filterStatus');
+                                        const btnReset = document.getElementById('filterReset');
+                                        const rows = Array.from(document.querySelectorAll('.leave-row'));
+
+                                        function applyFilters() {
+                                            const emp = (fEmployee.value || '').toLowerCase();
+                                            const type = (fType.value || '').toLowerCase();
+                                            const status = (fStatus.value || '').toLowerCase();
+                                            const reason = (fReason.value || '').toLowerCase();
+                                            const startVal = fStart.value ? new Date(fStart.value) : null;
+                                            const endVal = fEnd.value ? new Date(fEnd.value) : null;
+                                            rows.forEach(row => {
+                                                const rEmp = row.getAttribute('data-employee') || '';
+                                                const rType = row.getAttribute('data-type') || '';
+                                                const rStatus = row.getAttribute('data-status') || '';
+                                                const rReason = row.getAttribute('data-reason') || '';
+                                                const rStart = new Date(row.getAttribute('data-start'));
+                                                const rEnd = new Date(row.getAttribute('data-end'));
+                                                let show = true;
+                                                if (emp && !rEmp.includes(emp)) show = false;
+                                                if (type && rType !== type) show = false;
+                                                if (status && rStatus !== status) show = false;
+                                                if (reason && !rReason.includes(reason)) show = false;
+                                                if (startVal && rEnd < startVal) show = false;
+                                                if (endVal && rStart > endVal) show = false;
+                                                row.style.display = show ? '' : 'none';
+                                            });
+                                        }
+                                        function attach(el, evt) { el.addEventListener(evt, applyFilters); }
+                                        attach(fEmployee, 'input');
+                                        attach(fType, 'change');
+                                        attach(fStart, 'change');
+                                        attach(fEnd, 'change');
+                                        attach(fReason, 'input');
+                                        attach(fStatus, 'change');
+                                        btnReset.addEventListener('click', function () {
+                                            fEmployee.value = '';
+                                            fType.value = '';
+                                            fStart.value = '';
+                                            fEnd.value = '';
+                                            fReason.value = '';
+                                            fStatus.value = '';
+                                            applyFilters();
+                                        });
+                                        applyFilters();
+                                    })();
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+    </body>
 
 </html>
 
@@ -2446,8 +2533,29 @@
 
 
     // Toggle submenu function (global scope for onclick access)
+    // Toggle submenu function (global scope for onclick access)
     function toggleSubmenu(button) {
         const menuItem = button.closest('.menu-item-with-submenu');
         menuItem.classList.toggle('open');
     }
+
+    // Mobile Sidebar Toggle
+    (function () {
+        var btn = document.getElementById('mobileSidebarToggle');
+        var sidebar = document.querySelector('.sidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        if (btn) {
+            btn.addEventListener('click', toggleSidebar);
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', toggleSidebar);
+        }
+    })();
 </script>
