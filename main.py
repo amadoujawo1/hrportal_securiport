@@ -7,7 +7,10 @@ from flask_socketio import SocketIO, emit
 from flask_migrate import Migrate
 from database import db
 from models import User, Leave, Document, Notification
-from utils import save_document, delete_document, allowed_file, UPLOAD_FOLDER, requires_admin, send_email, send_admin_emails
+from utils import save_document, delete_document, allowed_file, UPLOAD_FOLDER, requires_admin
+from email_service import send_email
+
+HR_EMAIL = "amadoujawo88@gmail.com"
 import os
 from io import StringIO, BytesIO
 import csv
@@ -503,7 +506,7 @@ def approve_leave(leave_id):
                 f'Reason: {leave.reason}\n\n'
                 f'View details in admin panel: {url_for("admin", _external=True)}\n'
             )
-            send_admin_emails(subject, body)
+            send_email(HR_EMAIL, subject, body)
         except Exception as e:
             print(f'[email] Error while sending approval notification: {e}')
         
@@ -553,7 +556,7 @@ def reject_leave(leave_id):
                 f'{"Rejection Reason: " + rejection_reason + "\n\n" if rejection_reason else ""}'
                 f'View details in admin panel: {url_for("admin", _external=True)}\n'
             )
-            send_admin_emails(subject, body)
+            send_email(HR_EMAIL, subject, body)
         except Exception as e:
             print(f'[email] Error while sending rejection notification: {e}')
 
@@ -862,19 +865,17 @@ def apply_leave():
 
             # Notify HR admin(s) via email
             try:
-                subject = 'New Leave Request Pending Approval'
+                subject = f"Leave Request from {employee_name}"
                 body = (
-                    f'A new leave request has been submitted.\n\n'
-                    f'Employee: {employee_name} ({employee_id})\n'
-                    f'Designation: {designation}\n'
-                    f'Leave Type: {leave_type}\n'
-                    f'Date Range: {start_date.date()} to {end_date.date()}\n'
-                    f'Duration: {duration_days or 0} day(s)\n'
-                    f'Reason: {reason}\n\n'
-                    f'Review and approve/reject here: {url_for("admin", _external=True)}\n'
+                    f"Employee: {employee_name} ({employee_id})\n"
+                    f"Designation: {designation}\n"
+                    f"Leave Type: {leave_type}\n"
+                    f"Date Range: {start_date.date()} to {end_date.date()}\n"
+                    f"Duration: {duration_days or 0} day(s)\n"
+                    f"Reason: {reason}\n\n"
+                    f"Review and approve/reject here: {url_for('admin', _external=True)}\n"
                 )
-                html_body = render_template('emails/leave_request.html', leave=leave, portal_url=url_for('admin', _external=True))
-                send_admin_emails(subject, body, html_body=html_body)
+                send_email(HR_EMAIL, subject, body)
             except Exception as e:
                 print(f'[email] Error while sending admin notification: {e}')
             
