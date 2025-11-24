@@ -9,9 +9,12 @@ from database import db
 from models import User, Leave, Document, Notification
 from utils import save_document, delete_document, allowed_file, UPLOAD_FOLDER, requires_admin
 from email_service import send_email
-
-HR_EMAIL = "amadoujawo88@gmail.com"
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+HR_EMAIL = os.getenv('HR_EMAIL')
 from io import StringIO, BytesIO
 import csv
 from reportlab.lib import colors
@@ -20,8 +23,8 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost/hrportal'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 280
 app.config['SQLALCHEMY_POOL_TIMEOUT'] = 20
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
