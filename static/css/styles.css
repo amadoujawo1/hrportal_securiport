@@ -41,6 +41,7 @@ body {
     body {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto 1fr;
+        font-size: 0.9rem;
     }
 
     .sidebar {
@@ -96,7 +97,7 @@ body {
     }
 
     .header-company {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
     }
 
     .header-logo {
@@ -119,12 +120,12 @@ body {
     }
 
     h1 {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         margin-bottom: 1rem;
     }
 
     h2 {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
     }
 }
 
@@ -499,7 +500,7 @@ h2 {
     }
     
     .header-company {
-        font-size: 1.25rem;
+        font-size: 1rem;
     }
     
     .text-end {
